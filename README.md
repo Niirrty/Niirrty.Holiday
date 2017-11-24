@@ -32,6 +32,7 @@ Currently supported countries are:
 * `'ch'` Swizz
 * `'cz'` Czech
 * `'de'` Germany
+* `'fr'` France
 * `'it'` Italy
 * `'jp'` Nippon
 * `'uk'` United Kingdom

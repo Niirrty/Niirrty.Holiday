@@ -330,12 +330,12 @@ return HolidayCollection::Create( 'Deutschland', 'de' )
          ->setMonth( 11, false )->setDay  ( 1, false ) // 11-01
          ->addNameTranslationsArray( [
             'en' => 'All Saints\' Day',
-            'fr', 'Fête de la Toussaint',
-            'it', 'Ognissanti',
-            'es', 'Día de todos los Santos',
-            'pt', 'Dia de Todos os Santos',
-            'cz', 'Svátek Všech svatých',
-            'jp', '諸聖人の祝日'
+            'fr' => 'Fête de la Toussaint',
+            'it' => 'Ognissanti',
+            'es' => 'Día de todos los Santos',
+            'pt' => 'Dia de Todos os Santos',
+            'cz' => 'Svátek Všech svatých',
+            'jp' => '諸聖人の祝日'
          ] )
          ->addNames(
             HolidayName::Create( 'de', 'Allerheiligen' )->setRegions( [ 0, 1, 45, 46 ] ),
@@ -414,5 +414,4 @@ return HolidayCollection::Create( 'Deutschland', 'de' )
       // </editor-fold>
 
    );
-   // </editor-fold>
 
