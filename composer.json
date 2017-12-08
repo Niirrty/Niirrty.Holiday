@@ -11,8 +11,8 @@
   ],
   "require": {
     "php": ">=7.1",
-    "niirrty/niirrty.translation": "^0.1",
-    "niirrty/niirrty.io": "0.1.1"
+    "niirrty/niirrty.io": "^0.1",
+    "niirrty/niirrty.DATE": "^0.1"
   },
   "autoload": {
     "psr-4": {

@@ -16,28 +16,28 @@ use Niirrty\IO\Folder;
 
 
 /**
- * A country depending holiday collection factory
+ * A country depending holiday definition collection factory
  */
-class HolidayCollectionFactory
+class CountryDefinitionsFactory
 {
 
 
    // <editor-fold desc="= = =   P U B L I C   S T A T I C   M E T H O D S   = = = = = = = = = = = = = = = = = =">
 
    /**
-    * Gets the holidays
+    * Gets the holiday definitions of defined country
     *
     * @param  string $countryId The 2 char ISO ISO-3166-1 country ID in lower case (e.g.: 'de', 'uk', etc.)
-    * @return \Niirrty\Holiday\HolidayCollection|FALSE
+    * @return \Niirrty\Holiday\DefinitionCollection|null
     */
-   public static function Create( string $countryId )
+   public static function Create( string $countryId ) : ?DefinitionCollection
    {
 
-      $file = __DIR__ . '/Countries/' . $countryId . '.php';
+      $file = \dirname( __DIR__ ) . '/data/' . $countryId . '.php';
 
       if ( ! \file_exists( $file ) )
       {
-         return false;
+         return null;
       }
 
       /** @noinspection PhpIncludeInspection */
@@ -55,7 +55,7 @@ class HolidayCollectionFactory
 
       $countryIDs = [];
 
-      foreach ( Folder::ListFilteredFiles( __DIR__ . '/Countries', '~[a-z]{2}\.php$~', false ) as $countryFile )
+      foreach ( Folder::ListFilteredFiles( \dirname( __DIR__ ) . '/data', '~[a-z]{2}\.php$~', false ) as $countryFile )
       {
          $lowerCID = \strtolower( File::GetNameWithoutExtension( $countryFile ) );
          if ( 2 === \strlen( $lowerCID ) )

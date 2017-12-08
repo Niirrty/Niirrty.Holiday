@@ -12,6 +12,9 @@ declare( strict_types = 1 );
 namespace Niirrty\Holiday;
 
 
+use Niirrty\Date\DateTime;
+
+
 /**
  * Class HolidayCollection.
  */
@@ -26,29 +29,28 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
     *
     * @type string
     */
-   private $country;
+   private $_countryName;
 
    /**
-    * The country default language ISO 2 char ID (e.g.: 'de', 'fr')
+    * The 2 char ISO country ID (e.g.: 'de', 'fr')
     *
     * @type string
     */
-   private $defaultLanguage;
+   private $_countryId;
 
    /**
     * All Holiday records.
     *
     * @type Holiday[] Array
     */
-   private $records;
+   private $_data;
 
    /**
-    * All global callback functions. Each must accept an single parameter $year
-    * and must return an \DateTime instance.
+    * The year where the holidays are valid for
     *
-    * @type array
+    * @type int
     */
-   private $globalCallbacks;
+   private $_year;
 
    /**
     * A numeric indicated array that defines the names of all regions for current country.
@@ -57,7 +59,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
     *
     * @type array
     */
-   private $regions;
+   private $_regions;
 
    // </editor-fold>
 
@@ -67,17 +69,18 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    /**
     * HolidayCollection constructor.
     *
-    * @param  string $country         The country name (e.g. 'Deutschland' or 'United Kingdom')
-    * @param  string $defaultLanguage The country default language ISO 2 char ID (e.g.: 'de', 'fr')
+    * @param  int    $year          The year where the holidays are valid for
+    * @param  string $countryName  The country name (e.g. 'Deutschland' or 'United Kingdom')
+    * @param  string $countryId    The 2 char ISO country ID (e.g.: 'de', 'fr')
     */
-   public function __construct( string $country, string $defaultLanguage )
+   public function __construct( int $year, string $countryName, string $countryId )
    {
 
-      $this->country         = $country;
-      $this->defaultLanguage = $defaultLanguage;
-      $this->records         = [];
-      $this->globalCallbacks = [];
-      $this->regions         = [];
+      $this->_year            = $year;
+      $this->_countryName     = $countryName;
+      $this->_countryId       = $countryId;
+      $this->_data            = [];
+      $this->_regions         = [];
 
    }
 
@@ -93,13 +96,13 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
     * Retrieve an external iterator
     *
     * @link  http://php.net/manual/en/iteratoraggregate.getiterator.php
-    * @return Holiday[] An instance of an object implementing <b>Iterator</b> or <b>Traversable</b>
+    * @return \ArrayIterator An instance of an object implementing <b>Iterator</b> or <b>Traversable</b>
     */
    public function getIterator()
    {
 
       /** @noinspection PhpIncompatibleReturnTypeInspection */
-      return new \ArrayIterator( $this->records );
+      return new \ArrayIterator( $this->_data );
 
    }
 
@@ -119,7 +122,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function offsetExists( $offset )
    {
 
-      return isset( $this->records[ $offset ] );
+      return isset( $this->_data[ $offset ] );
 
    }
 
@@ -133,7 +136,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function offsetGet( $offset )
    {
 
-      return $this->records[ $offset ];
+      return $this->_data[ $offset ];
 
    }
 
@@ -155,11 +158,11 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
 
       if ( \is_null( $offset ) )
       {
-         $this->records[] = $value;
+         $this->_data[] = $value;
       }
       else
       {
-         $this->records[ $offset ] = $value;
+         $this->_data[ $offset ] = $value;
       }
 
    }
@@ -173,7 +176,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function offsetUnset( $offset )
    {
 
-      unset( $this->records[ $offset ] );
+      unset( $this->_data[ $offset ] );
 
    }
 
@@ -191,7 +194,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function count()
    {
 
-      return \count( $this->records );
+      return \count( $this->_data );
 
    }
 
@@ -208,19 +211,19 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function getRegions() : array
    {
 
-      return $this->regions;
+      return $this->_regions;
 
    }
 
    /**
-    * Gets the country default language ISO 2 char ID (e.g.: 'de', 'fr')
+    * Gets the 2 char ISO country ID (e.g.: 'de', 'fr')
     *
     * @return string
     */
-   public function getDefaultLanguage() : string
+   public function getCountryId() : string
    {
 
-      return $this->defaultLanguage;
+      return $this->_countryId;
 
    }
 
@@ -232,94 +235,104 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function getCountryName() : string
    {
 
-      return $this->defaultLanguage;
+      return $this->_countryId;
 
    }
 
    /**
     * Get the names of all an registered global callbacks.
     *
-    * @return array
+    * @return int
     */
-   public function getGlobalCallbackNames() : array
+   public function getYear() : int
    {
 
-      return \array_keys( $this->globalCallbacks );
+      return $this->_year;
 
    }
 
    /**
-    * Gets an array with all valid holidays for defined year and region.
+    * Gets an array with all valid holidays for defined year.
     *
-    * The returned array is numeric indicated. Each holiday element is an associative array with the keys:
-    *
-    * - date:        An \DateTime instance of the holiday date
-    * - name:        The holiday name. If an language is defined and exists, it have the requested language,
-    *                Otherwise it uses the default language
-    * - description: An optional holiday description text
-    * - regions:     An associative array with the indexes of all regions where the holiday is valid. index -1 means all
-    *
-    * @param  int         $year        The year to get the holiday for
-    * @param  int         $regionIndex The index of the required region (-1 means all)
-    * @param  string|null $language    The required holiday name language (empty means the default language)
-    * @return array
-    * @throws \Niirrty\Holiday\Exception
+    * @return \Niirrty\Holiday\Holiday[]
     */
-   public function getHolidays( int $year, int $regionIndex = -1, string $language = null ) : array
+   public function getHolidays() : array
    {
 
-      if ( empty( $language ) )
+      return $this->_data;
+
+   }
+
+   /**
+    * Gets if an region with the defined index or name exists.
+    *
+    * @param  string|int $region The name or index of the required region
+    * @return bool
+    */
+   public function hasRegion( $region ) : bool
+   {
+
+      if ( \is_int( $region ) )
       {
-         $language = $this->defaultLanguage;
+         return isset( $this->_regions[ $region ] );
       }
 
-      $holidays = [];
+      return ( false !== \array_search( $region, $this->_regions ) );
 
-      foreach ( $this->records as $holiday )
+   }
+
+   /**
+    * Gets if the country has registered some known regions.
+    *
+    * @return bool
+    */
+   public function hasRegions() : bool
+   {
+
+      return \count( $this->_regions ) > 0;
+
+   }
+
+   /**
+    * Gets if the Holiday with the defined identifier is defined.
+    *
+    * @param  string $identifier The Unique holiday identifier
+    * @return bool
+    */
+   public function has( string $identifier ) : bool
+   {
+
+      return isset( $this->_data[ $identifier ] );
+
+   }
+
+   /**
+    * Gets the Holiday with the defined identifier, or NULL if no holiday for identifier is defined.
+    *
+    * @param  string $identifier The Unique holiday identifier
+    * @return \Niirrty\Holiday\Holiday|null
+    */
+   public function get( string $identifier ) : ?Holiday
+   {
+
+      if ( ! $this->has( $identifier ) )
       {
-
-         $matchingName = null;
-
-         if ( ! $holiday->isRegion( $regionIndex, $matchingName ) )
-         {
-            // ignore holidays that are not valid for defined region
-            continue;
-         }
-
-         if ( false === ( $dt = $holiday->getDate( $year, $this->globalCallbacks, true ) ) )
-         {
-            // Not an valid holiday for current year
-            continue;
-         }
-
-         // OK this holiday is valid
-
-         // Get the name for declared language
-         if ( $language === $this->defaultLanguage )
-         {
-            /** @noinspection PhpUndefinedMethodInspection */
-            $name = $matchingName->getName();
-         }
-         else
-         {
-            if ( false === ( $name = $holiday->getNameTranslated( $language ) ) )
-            {
-               /** @noinspection PhpUndefinedMethodInspection */
-               $name = $matchingName->getName();
-            }
-         }
-
-         /** @noinspection PhpUndefinedMethodInspection */
-         $holidays[] = [
-            'date'        => $dt,
-            'name'        => $name,
-            'description' => $holiday->getDescription() ?? '',
-            'regions'     => $matchingName->getRegions()
-         ];
-
+         return null;
       }
 
-      return $holidays;
+      return $this->_data[ $identifier ];
+
+   }
+
+   /**
+    * Gets the identifiers or all current defined holidays.
+    *
+    * @return array
+    */
+   public function getIdentifiers() : array
+   {
+
+      return \array_keys( $this->_data );
 
    }
 
@@ -331,13 +344,48 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    /**
     * Sets a numeric indicated array that defines the names of all regions/provinces/states for current country.
     *
+    * The associated indexes are used later for point to the regions
+    *
     * @param  array $regions
     * @return \Niirrty\Holiday\HolidayCollection
     */
    public function setRegions( array $regions ) : HolidayCollection
    {
 
-      $this->regions = $regions;
+      $this->_regions = $regions;
+
+      return $this;
+
+   }
+
+   /**
+    * Add an holiday to the collection.
+    *
+    * @param  \Niirrty\Holiday\Holiday $holiday
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function add( Holiday $holiday ) : HolidayCollection
+   {
+
+      $this->_data[ $holiday->getIdentifier() ] = $holiday;
+
+      return $this;
+
+   }
+
+   /**
+    * Add one or more holidays to the collection.
+    *
+    * @param  \Niirrty\Holiday\Holiday[] ...$holidays
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function addRange( Holiday ...$holidays ) : HolidayCollection
+   {
+
+      foreach ( $holidays as $holiday )
+      {
+         $this->_data[ $holiday->getIdentifier() ] = $holiday;
+      }
 
       return $this;
 
@@ -361,37 +409,19 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
 
       if ( \count( $regionIndexes ) < 1 || $regionIndexes[ 0 ] === -1 )
       {
-         return $this->regions;
+         return $this->_regions;
       }
 
       foreach ( $regionIndexes as $regionIndex )
       {
-         if ( ! isset( $this->regions[ $regionIndex ] ) )
+         if ( ! isset( $this->_regions[ $regionIndex ] ) )
          {
             continue;
          }
-         $names[ $regionIndex ] = $this->regions[ $regionIndex ];
+         $names[ $regionIndex ] = $this->_regions[ $regionIndex ];
       }
 
       return $names;
-
-   }
-
-   /**
-    * Gets if an region with the defined index or name exists.
-    *
-    * @param  string|int $region The name or index of the required region
-    * @return bool
-    */
-   public function hasRegion( $region ) : bool
-   {
-
-      if ( \is_int( $region ) )
-      {
-         return isset( $this->regions[ $region ] );
-      }
-
-      return ( false !== \array_search( $region, $this->regions ) );
 
    }
 
@@ -404,91 +434,87 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function indexOfRegion( string $region )
    {
 
-      return \array_search( $region, $this->regions );
+      return \array_search( $region, $this->_regions );
 
    }
 
    /**
-    * Gets if the country has registered some known regions.
+    * Gets if the defined date is a known holiday for instance year holidays.
     *
+    * @param mixed       $date
+    * @param string|null $foundIdentifier Return the holiday identifier if the method return true
     * @return bool
     */
-   public function hasRegions() : bool
+   public function containsDate( $date, string &$foundIdentifier = null ) : bool
    {
 
-      return \count( $this->regions ) > 0;
-
-   }
-
-   /**
-    * Add an global callback function that is used to calculate an specific dynamic date for usage
-    * as base date for calculate an movable holyday.
-    *
-    * @param  string   $name             The callback name.
-    * @param  callable $callbackFunction The callback (must accept at least one parameter $year
-    * @return \Niirrty\Holiday\HolidayCollection
-    * @throws \Niirrty\Holiday\Exception
-    */
-   public function registerGlobalCallback( string $name, callable $callbackFunction ) : HolidayCollection
-   {
-
-      $this->globalCallbacks[ $name ] = $callbackFunction;
-
-      return $this;
-
-   }
-
-   /**
-    * Removes an registered global callback.
-    *
-    * @param  string $name THe name of the callback. Empty $name will remove all registered callbacks.
-    * @return \Niirrty\Holiday\HolidayCollection
-    */
-   public function removeGlobalCallback( string $name = null ) : HolidayCollection
-   {
-
-      if ( empty( $name ) )
+      if ( false === ( $dt = DateTime::Parse( $date ) ) )
       {
-
-         $this->globalCallbacks = [];
-
-         return $this;
-
+         return false;
       }
 
-      unset( $this->globalCallbacks[ $name ] );
+      $dateString = '' . $this->_year . $dt->format( '-m-d' );
 
-      return $this;
+      foreach ( $this->_data as $holiday )
+      {
+         if ( $dateString === $holiday->getDate()->format( 'Y-m-d' ) )
+         {
+            $foundIdentifier = $holiday->getIdentifier();
+            return true;
+         }
+      }
 
-   }
-
-   /**
-    * Add an holiday to the collection.
-    *
-    * @param  \Niirrty\Holiday\Holiday $holiday
-    * @return \Niirrty\Holiday\HolidayCollection
-    */
-   public function add( Holiday $holiday ) : HolidayCollection
-   {
-
-      $this->records[] = $holiday;
-
-      return $this;
+      return false;
 
    }
 
    /**
-    * Add one or more holidays to the collection.
+    * Gets if the defined day and month is a known holiday for instance year holidays.
     *
-    * @param  \Niirrty\Holiday\Holiday[] ...$holidays
-    * @return \Niirrty\Holiday\HolidayCollection
+    * @param int         $month
+    * @param int         $day
+    * @param string|null $foundIdentifier Return the holiday identifier if the method return true
+    * @return bool
     */
-   public function addRange( Holiday ...$holidays ) : HolidayCollection
+   public function containsDay( int $month, int $day, string &$foundIdentifier = null ) : bool
    {
 
-      $this->records = \array_merge( $this->records, $holidays );
+      $dt = DateTime::Create( $this->_year, $month, $day );
 
-      return $this;
+      $dateString = $dt->format( 'Y-m-d' );
+
+      foreach ( $this->_data as $holiday )
+      {
+         if ( $dateString === $holiday->getDate()->format( 'Y-m-d' ) )
+         {
+            $foundIdentifier = $holiday->getIdentifier();
+            return true;
+         }
+      }
+
+      return false;
+
+   }
+
+
+   public function startsAt( int $month = 1, int $day = 1 ) : HolidayCollection
+   {
+
+      $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+         ->setRegions( $this->_regions );
+
+      $minDate = DateTime::Create( $this->_year, $month, $day );
+
+      foreach ( $this->_data as $identifier => $holiday )
+      {
+         if ( $holiday->getDate() < $minDate )
+         {
+            continue;
+         }
+         $result->_data[ $identifier ] = $holiday;
+      }
+
+      return $result;
 
    }
 
@@ -503,14 +529,15 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    /**
     * Creates a new HolidayCollection instance and returns it.
     *
-    * @param  string $country         The country name (e.g. 'Deutschland' or 'United Kingdom')
-    * @param  string $defaultLanguage The country default language ISO 2 char ID (e.g.: 'de', 'fr')
+    * @param  int    $year          The year where the holidays are valid for
+    * @param  string $countryName  The country name (e.g. 'Deutschland' or 'United Kingdom')
+    * @param  string $countryId    The 2 char ISO country ID (e.g.: 'de', 'fr')
     * @return \Niirrty\Holiday\HolidayCollection
     */
-   public static function Create( string $country, string $defaultLanguage ) : HolidayCollection
+   public static function Create( int $year, string $countryName, string $countryId ) : HolidayCollection
    {
 
-      return new self( $country, $defaultLanguage );
+      return new self( $year, $countryName, $countryId );
 
    }
 
