@@ -12,7 +12,11 @@
   "require": {
     "php": ">=7.1",
     "niirrty/niirrty.io": "^0.1",
-    "niirrty/niirrty.DATE": "^0.1"
+    "niirrty/niirrty.date": "^0.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "7.*",
+    "mockery/mockery": "^1.0"
   },
   "autoload": {
     "psr-4": {
