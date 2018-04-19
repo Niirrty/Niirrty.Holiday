@@ -5,6 +5,25 @@ A extendable international holyday library.
 Its realy easy to define holidays for other countries than initially supported. For mor information see
 [Define country depending holidays](#define-country-depending-holidays) 
 
+## Installation
+
+This is a package available via composer:
+
+```bash
+composer require niirrty/niirrty.holiday ^1.0 
+```
+
+or inside the `require` area of the `composer.json`:
+
+```json
+{
+   "require": {
+                "php": ">=7.1",
+                "niirrty/niirrty.holiday": "^1.0"
+              }
+}
+```
+
 ## Usage
 
 ```php
