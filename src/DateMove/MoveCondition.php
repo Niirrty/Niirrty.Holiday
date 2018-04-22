@@ -326,15 +326,15 @@ class MoveCondition implements IMoveCondition
 
       self::$isSaturday = function ( \DateTime $date ) : bool
       {
-         return 0 === ( (int) $date->format( 'w' ) );
+         return 6 === ( (int) $date->format( 'w' ) );
       };
       self::$isSunday   = function ( \DateTime $date ) : bool
       {
-         return 1 === ( (int) $date->format( 'w' ) );
+         return 0 === ( (int) $date->format( 'w' ) );
       };
       self::$isMonday   = function ( \DateTime $date ) : bool
       {
-         return 6 === ( (int) $date->format( 'w' ) );
+         return 1 === ( (int) $date->format( 'w' ) );
       };
 
    }
