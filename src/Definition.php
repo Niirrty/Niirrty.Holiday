@@ -418,7 +418,7 @@ class Definition
    public function getValidRegions() : array
    {
 
-      return $this->_moveConditions;
+      return $this->_regions;
 
    }
 
@@ -544,7 +544,7 @@ class Definition
     * Sets the callback for calculate a dynamic date.
     *
     * The callback must accept one parameter of type int that passes the year to the callback. The callback must
-    * return a \Niirrty\Date\DateTime instance.
+    * return a \DateTime instance.
     *
     * @param  callable|null $callback
     * @return \Niirrty\Holiday\Definition
@@ -621,8 +621,13 @@ class Definition
          $this->_calculatedHolidays = [];
       }
 
-      return $this->clearMoveConditions()
-                  ->addMoveConditions( $conditions );
+      $this->clearMoveConditions();
+      foreach ( $conditions as $condition )
+      {
+         $this->addMoveCondition( $condition );
+      }
+
+      return $this;
 
    }
 
@@ -779,11 +784,16 @@ class Definition
 
       if ( -1 === $regionIndex )
       {
-         if ( -1 !== $this->_regions )
+         if ( [ -1 ] !== $this->_regions )
          {
             $this->_regions = [ -1 ];
          }
+         return $this;
+      }
 
+      if ( -1 === $this->_regions[ 0 ] )
+      {
+         $this->_regions = [ $regionIndex ];
          return $this;
       }
 
@@ -919,7 +929,6 @@ class Definition
          }
       }
 
-
       // Define the final date
 
       // If a static holiday base month and day is defined => use it to generate the required DateTime
@@ -936,10 +945,10 @@ class Definition
       {
          // Its a dynamic holiday
          $dt = \call_user_func( $this->_dynamicDate, $year );
-         if ( ! ( $dt instanceof DateTime ) )
+         if ( ! ( $dt instanceof \DateTime ) )
          {
             throw new Exception(
-               'Can not get a holiday date if dynamic date callback not return a \\Niirrty\\Date\\DateTime instance!'
+               'Can not get a holiday date if dynamic date callback not return a \\DateTime instance!'
             );
          }
          // Move it if requested
@@ -953,7 +962,7 @@ class Definition
       {
          // Its a dynamic holiday
          $dt = \call_user_func( $globalCallbacks[ $this->_baseCallbackName ], $year );
-         if ( ! ( $dt instanceof DateTime ) )
+         if ( ! ( $dt instanceof \DateTime ) )
          {
             throw new Exception(
                'Can not get a holiday date if dyn. date base callback not return a \\Niirrty\\Date\\DateTime instance!'
@@ -972,7 +981,7 @@ class Definition
 
 
       // Get the real year after date movements
-      $year = $dt->getYear();
+      $year = (int) $dt->format( 'Y' );
 
 
       // Get valid from and valid to year and set defaults if they are unused
@@ -1019,7 +1028,7 @@ class Definition
 
    // <editor-fold desc="// –––––––   P R O T E C T E D   M E T H O D S   ––––––––––––––––––––––––––––––––">
 
-   protected function moveDateByConditions( DateTime $date ) : DateTime
+   protected function moveDateByConditions( \DateTime $date ) : \DateTime
    {
 
       foreach ( $this->_moveConditions as $moveCondition )

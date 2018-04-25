@@ -213,7 +213,7 @@ class Holiday
     * @param  \Niirrty\Date\DateTime $date
     * @return \Niirrty\Holiday\Holiday
     */
-   public function setDate( DateTime $date ) : Holiday
+   public function setDate( \DateTime $date ) : Holiday
    {
 
       $this->_date = $date;
