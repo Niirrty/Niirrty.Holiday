@@ -160,7 +160,7 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
 
       if ( ! ( $value instanceof Definition ) )
       {
-         throw new Exception( 'Can not set an holiday dDefinition if it is not an Definition instance!' );
+         throw new Exception( 'Can not set an holiday definition if it is not an Definition instance!' );
       }
 
       if ( \is_null( $offset ) )

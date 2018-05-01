@@ -143,7 +143,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    /**
     * Offset to set.
     *
-    * @param  int                    $offset The offset to assign the value to.
+    * @param  string|null              $offset The offset to assign the value to.
     * @param  \Niirrty\Holiday\Holiday $value  The value to set.
     * @throws \Niirrty\Holiday\Exception
     * @link   http://php.net/manual/en/arrayaccess.offsetset.php
@@ -158,7 +158,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
 
       if ( \is_null( $offset ) )
       {
-         $this->_data[] = $value;
+         $this->_data[ $value->getIdentifier() ] = $value;
       }
       else
       {
@@ -235,7 +235,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    public function getCountryName() : string
    {
 
-      return $this->_countryId;
+      return $this->_countryName;
 
    }
 
