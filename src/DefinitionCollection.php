@@ -70,7 +70,7 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
    // <editor-fold desc="= = =   P U B L I C   C O N S T R U C T O R   = = = = = = = = = = = = = = = = = = = = =">
 
    /**
-    * HolidayCollection constructor.
+    * DefinitionCollection constructor.
     *
     * @param  string $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
     * @param  string $countryId   The country ISO 2 char ID (e.g.: 'de', 'fr')
@@ -158,14 +158,14 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
    public function offsetSet( $offset, $value )
    {
 
-      if ( ! ( $value instanceof Holiday ) )
+      if ( ! ( $value instanceof Definition ) )
       {
-         throw new Exception( 'Can not set an holiday if it is not an Holiday instance!' );
+         throw new Exception( 'Can not set an holiday dDefinition if it is not an Definition instance!' );
       }
 
       if ( \is_null( $offset ) )
       {
-         $this->_data[] = $value;
+         $this->_data[ $value->getIdentifier() ] = $value;
       }
       else
       {
