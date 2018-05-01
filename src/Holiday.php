@@ -138,9 +138,9 @@ class Holiday
    /**
     * Gets the holiday date.
     *
-    * @return \Niirrty\Date\DateTime|null
+    * @return \DateTime|null
     */
-   public function getDate() : ?DateTime
+   public function getDate() : ?\DateTime
    {
 
       return $this->_date;
@@ -210,7 +210,7 @@ class Holiday
    /**
     * Sets the holiday date.
     *
-    * @param  \Niirrty\Date\DateTime $date
+    * @param  \DateTime $date
     * @return \Niirrty\Holiday\Holiday
     */
    public function setDate( \DateTime $date ) : Holiday
