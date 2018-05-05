@@ -50,7 +50,6 @@ return DefinitionCollection::Create( 'Nederland', 'nl' )
       // Pasen - Easter Sunday…
       Definition::CreateEasterDepending( Identifiers::EASTER_SUNDAY, 0 )
                 ->setName( 'Pasen' )
-                ->setValidRegions( [ 3, 6 ] )
                 ->setNameTranslations( [
                    'nl' => 'Pasen',
                    'de' => 'Ostersonntag',

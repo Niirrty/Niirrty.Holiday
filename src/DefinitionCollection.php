@@ -12,7 +12,9 @@ declare( strict_types = 1 );
 namespace Niirrty\Holiday;
 
 
-use Niirrty\Date\DateTime;
+use Niirrty\Holiday\Callbacks\EasterDateCallback;
+use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -64,6 +66,8 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
     */
    private $_regions;
 
+   private $_logger;
+
    // </editor-fold>
 
 
@@ -72,21 +76,18 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
    /**
     * DefinitionCollection constructor.
     *
-    * @param  string $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
-    * @param  string $countryId   The country ISO 2 char ID (e.g.: 'de', 'fr')
+    * @param string                        $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
+    * @param string                        $countryId   The country ISO 2 char ID (e.g.: 'de', 'fr')
+    * @param null|\Psr\Log\LoggerInterface $logger
     */
-   public function __construct( string $countryName, string $countryId )
+   public function __construct( string $countryName, string $countryId, ?LoggerInterface $logger = null )
    {
 
       $this->_countryName     = $countryName;
       $this->_countryId       = $countryId;
+      $this->_logger          = $logger;
       $this->_data            = [];
-      $this->_globalCallbacks = [
-         'easter_sunday' => function( $year )
-            {
-               return ( new DateTime() )->setTimestamp( \easter_date( $year ) );
-            }
-      ];
+      $this->_globalCallbacks = [ 'easter_sunday' => new EasterDateCallback() ];
       $this->_regions         = [];
 
    }
@@ -403,14 +404,14 @@ class DefinitionCollection implements \ArrayAccess, \IteratorAggregate, \Countab
     * Are global callback is useful if the calculated dynamic date is the base of many holidays.
     * So the callback should only be declared at a single place.
     *
-    * @param  string   $name             The callback name.
-    * @param  callable $callbackFunction The callback (must accept at least one parameter $year
+    * @param  string                                          $name     The callback name.
+    * @param  \Niirrty\Holiday\Callbacks\IDynamicDateCallback $callback The callback
     * @return \Niirrty\Holiday\DefinitionCollection
     */
-   public function registerGlobalCallback( string $name, callable $callbackFunction ) : DefinitionCollection
+   public function registerGlobalCallback( string $name, IDynamicDateCallback $callback ) : DefinitionCollection
    {
 
-      $this->_globalCallbacks[ $name ] = $callbackFunction;
+      $this->_globalCallbacks[ $name ] = $callback;
 
       return $this;
 

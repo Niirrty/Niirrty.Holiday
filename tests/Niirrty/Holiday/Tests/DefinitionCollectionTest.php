@@ -14,6 +14,7 @@ namespace Niirrty\Holiday\Tests;
 use Niirrty\Holiday\Definition;
 use Niirrty\Holiday\DefinitionCollection;
 use Niirrty\Holiday\Exception;
+use Niirrty\Holiday\Tests\Fixtures\MyDynamicDateCallbackCallback;
 use PHPUnit\Framework\TestCase;
 
 
@@ -180,20 +181,20 @@ class DefinitionCollectionTest extends TestCase
    public function testRegisterGlobalCallback()
    {
 
-      $this->collection->registerGlobalCallback( 'foo', function( int $year ) { return 0 === $year % 2; } );
+      $this->collection->registerGlobalCallback( 'foo', new MyDynamicDateCallbackCallback() );
       $this->assertSame( [ 'easter_sunday', 'foo' ], $this->collection->getGlobalCallbackNames() );
 
    }
    public function testRemoveGlobalCallback()
    {
 
-      $this->collection->registerGlobalCallback( 'foo', function( int $year ) { return 0 === $year % 2; } );
+      $this->collection->registerGlobalCallback( 'foo', new MyDynamicDateCallbackCallback() );
 
       $this->assertSame( [ 'easter_sunday' ], $this->collection->removeGlobalCallback( 'foo' )
                                                                ->getGlobalCallbackNames() );
 
-      $this->collection->registerGlobalCallback( 'foo', function( int $year ) { return 0 === $year % 2; } );
-      $this->collection->registerGlobalCallback( 'bar', function( int $year ) { return 0 === $year % 2; } );
+      $this->collection->registerGlobalCallback( 'foo', new MyDynamicDateCallbackCallback() );
+      $this->collection->registerGlobalCallback( 'bar', new MyDynamicDateCallbackCallback() );
 
       $this->assertSame( [ 'easter_sunday' ], $this->collection->removeGlobalCallback()
                                                                ->getGlobalCallbackNames() );

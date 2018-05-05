@@ -32,7 +32,8 @@ class HolidayTest extends TestCase
                     ->setDate( new \DateTime( '2018-05-01 00:00:00' ) )
                     ->setValidRegions( [ 12 ] )
                     ->setLanguage( 'en' )
-                    ->setDescription( 'A holiday destription' );
+                    ->setDescription( 'A holiday destription' )
+                    ->setMovedFromDate( new \DateTime( '2018-05-02 00:00:00' ) );
       parent::setUp();
 
    }
@@ -71,6 +72,20 @@ class HolidayTest extends TestCase
    {
 
       $this->assertSame( 'en', $this->holiday->getLanguage() );
+
+   }
+   public function testGetMovedFromDate()
+   {
+
+      $this->assertEquals( new \DateTime( '2018-05-02 00:00:00' ), $this->holiday->getMovedFromDate() );
+
+   }
+   public function testHasMovedFromDate()
+   {
+
+      $this->assertTrue( $this->holiday->hasMovedFromDate() );
+      $this->holiday->setMovedFromDate( null );
+      $this->assertFalse( $this->holiday->hasMovedFromDate() );
 
    }
 

@@ -105,8 +105,8 @@ return DefinitionCollection::Create( 'Österreich', 'de' )
                    'jp' => '復活の月曜日'
                 ] ),
 
-      // 05-01 : Staatsfeiertag - National Day
-      Definition::Create( Identifiers::NATIONAL_DAY )
+      // 05-01 : Staatsfeiertag - State day
+      Definition::Create( 'State Day' )
                 ->setStaticDate( 5, 1 )
                 ->setName( 'Staatsfeiertag' )
                 ->setNameTranslations( [

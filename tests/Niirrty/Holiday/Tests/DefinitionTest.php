@@ -12,10 +12,12 @@ namespace Niirrty\Holiday\Tests;
 
 
 use Niirrty\Date\DateTime;
+use Niirrty\Holiday\Callbacks\EasterDateCallback;
+use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
 use Niirrty\Holiday\DateMove\MoveCondition;
 use Niirrty\Holiday\Definition;
-use Niirrty\Holiday\Exception;
 use Niirrty\Holiday\Holiday;
+use Niirrty\Holiday\Tests\Fixtures\MyDynamicDateCallbackCallback;
 use PHPUnit\Framework\TestCase;
 
 
@@ -46,13 +48,16 @@ class DefinitionTest extends TestCase
       $this->definitionDynamic = new Definition( 'A dynamic holiday' );
       $this->definitionDynamic->setName( 'Ein dynamischer Feiertag' )
                               ->setDynamicDateCallback(
-                                 function( int $year ) : \DateTime
+                                 new class implements IDynamicDateCallback
                                  {
-                                    if ( $year < 2016 )
+                                    public function calculate( int $year ) : \DateTime
                                     {
-                                       return new \DateTime( $year . '-03-28 00:00:00' );
+                                       if ( $year < 2016 )
+                                       {
+                                          return new \DateTime( $year . '-03-28 00:00:00' );
+                                       }
+                                       return new \DateTime( $year . '-06-24 00:00:00' );
                                     }
-                                    return new \DateTime( $year . '-06-24 00:00:00' );
                                  } )
                               ->setValidFromYear( 1943 );
 
@@ -84,7 +89,7 @@ class DefinitionTest extends TestCase
    public function testGetDynamicDateCallback()
    {
 
-      $this->assertTrue( \is_callable( $this->definitionDynamic->getDynamicDateCallback() ) );
+      $this->assertNotNull( $this->definitionDynamic->getDynamicDateCallback() );
       $this->assertNull( $this->definitionStatic->getDynamicDateCallback() );
 
    }
@@ -232,7 +237,10 @@ class DefinitionTest extends TestCase
    {
 
       $this->definitionDynamic->toHoliday( 2016, [] );
-      $this->assertNull( $this->definitionDynamic->setDynamicDateCallback( function($y){return null;})->getBaseCallbackName() );
+      $this->assertInstanceOf(
+         IDynamicDateCallback::class,
+         $this->definitionDynamic->setDynamicDateCallback( new MyDynamicDateCallbackCallback() )->getDynamicDateCallback()
+      );
       $this->assertNull( $this->definitionDynamic->setDynamicDateCallback( null )->getDynamicDateCallback() );
 
    }
@@ -356,28 +364,11 @@ class DefinitionTest extends TestCase
       $this->assertInstanceOf( Holiday::class, $this->definitionStatic->toHoliday( 2016, [], [ 12 ], 'de' ) );
       $this->assertInstanceOf( Holiday::class, $this->definitionDynamic->toHoliday( 2016, [], [], 'de' ) );
       $this->assertNull( Definition::Create( 'abc' )->toHoliday( 2016, [], [ 9 ], 'de' ) );
-      // $validFromYear > $validToYear    =>   $year > $validToYear && $year < $validFromYear
       $this->definitionStatic->setValidFromYear( 2017 )->setValidToYear( 2009 );
       $this->assertNull( $this->definitionStatic->toHoliday( 2016, [], [], 'de' ) );
       $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2018, [], [], 'de' ) );
       $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, [], [], 'de' ) );
       $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, [], [], 'de' ) );
-
-   }
-   public function testToHolidayException1()
-   {
-
-      $this->expectException( Exception::class );
-      $hDay = Definition::Create( 'Example' )->setDynamicDateCallback( function( $year ) { return false; } );
-      $hDay->toHoliday( 2018, [] );
-
-   }
-   public function testToHolidayException2()
-   {
-
-      $this->expectException( Exception::class );
-      $hDay = Definition::Create( 'Example' )->setBaseCallbackName( 'xyz' );
-      $hDay->toHoliday( 2018, [ 'xyz' => function( $year ) { return false; } ] );
 
    }
 
@@ -390,23 +381,20 @@ class DefinitionTest extends TestCase
    public function testCreateEasterDepending()
    {
 
-      $globalCallbacks = [
-         'easter_sunday' => function( $year )
-         {
-            return ( new DateTime() )->setTimestamp( \easter_date( $year ) );
-         }
-      ];
-      $this->assertSame( '2018-04-15',
-                         Definition::CreateEasterDepending( 'Bar', 15 )->toHoliday( 2018, $globalCallbacks, [], 'de' )
-                                                                       ->getDate()
-                                                                       ->format( 'Y-m-d' ) );
+      $globalCallbacks = [ 'easter_sunday' => new EasterDateCallback() ];
+      $this->assertSame( '2018-04-16',
+                         Definition::CreateEasterDepending( 'Bar', 15 )
+                                   ->toHoliday( 2018, $globalCallbacks, [], 'de' )
+                                   ->getDate()
+                                   ->format( 'Y-m-d' ) );
 
    }
    public function testCreateNewYear()
    {
 
       $this->assertSame( '2018-01-01',
-                         Definition::CreateNewYear( 'Neujahr' )->toHoliday( 2018, [], [], 'de' )
+                         Definition::CreateNewYear( 'Neujahr' )
+                                   ->toHoliday( 2018, [], [], 'de' )
                                    ->getDate()
                                    ->format( 'Y-m-d' ) );
 
