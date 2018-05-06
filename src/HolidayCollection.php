@@ -496,12 +496,29 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
 
    }
 
-
+   /**
+    * Extracts a subset of holidays, starting at defined month and/or day, or later.
+    *
+    * If you set $month and/or $day to a value lower than 1, the current day and/or month is used
+    *
+    * @param int $month
+    * @param int $day
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
    public function startsAt( int $month = 1, int $day = 1 ) : HolidayCollection
    {
 
       $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
          ->setRegions( $this->_regions );
+
+      if ( $month < 1 )
+      {
+         $month = DateTime::CurrentMonth();
+      }
+      if ( $day < 1 )
+      {
+         $day = DateTime::CurrentDay();
+      }
 
       $minDate = DateTime::Create( $this->_year, $month, $day );
 
@@ -515,6 +532,108 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
       }
 
       return $result;
+
+   }
+
+   /**
+    * Extracts all holidays for the region with defined ID.
+    *
+    * @param int $regionId
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function byRegionId( int $regionId ) : HolidayCollection
+   {
+
+      $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+         ->setRegions( $this->_regions );
+
+      foreach ( $this->_data as $identifier => $holiday )
+      {
+         $regions = $holiday->getValidRegions();
+         if ( [ -1 ] === $regions || [] === $regions || \in_array( $regionId, $regions, true ) )
+         {
+            $result->_data[ $identifier ] = $holiday;
+         }
+      }
+
+      return $result;
+
+   }
+
+   /**
+    * Extracts all holidays for the regions with defined IDs.
+    *
+    * @param array $regionIds
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function byRegionIds( array $regionIds ) : HolidayCollection
+   {
+
+      $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+         ->setRegions( $this->_regions );
+
+      foreach ( $this->_data as $identifier => $holiday )
+      {
+         $regions = $holiday->getValidRegions();
+         if ( [ -1 ] === $regions || [] === $regions )
+         {
+            $result->_data[ $identifier ] = $holiday;
+         }
+         else
+         {
+            foreach ( $regionIds as $regionId )
+            {
+               if ( \in_array( $regionId, $regions, true ) )
+               {
+                  $result->_data[ $identifier ] = $holiday;
+               }
+            }
+         }
+      }
+
+      return $result;
+
+   }
+
+   /**
+    * Extracts all holidays for the region with defined Name.
+    *
+    * @param string $regionName
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function byRegionName( string $regionName ) : HolidayCollection
+   {
+
+      $regionId = $this->indexOfRegion( $regionName );
+
+      if ( false === $regionId )
+      {
+         $regionId = 0;
+      }
+
+      return $this->byRegionId( $regionId );
+
+   }
+
+   /**
+    * Extracts all holidays for the regions with defined names.
+    *
+    * @param array $regionNames
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function byRegionNames( array $regionNames ) : HolidayCollection
+   {
+
+      $regionIds = [];
+      foreach ( $regionNames as $regionName )
+      {
+         if ( false !== ( $regionId = $this->indexOfRegion( $regionName ) ) )
+         {
+            $regionIds[] = $regionId;
+         }
+      }
+
+      return $this->byRegionIds( $regionIds );
 
    }
 
