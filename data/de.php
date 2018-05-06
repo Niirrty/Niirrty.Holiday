@@ -9,6 +9,7 @@
 use Niirrty\Holiday\Definition;
 use Niirrty\Holiday\DefinitionCollection;
 use Niirrty\Holiday\Identifiers;
+use Niirrty\Holiday\Callbacks\ModifyDateCallback;
 
 
 return DefinitionCollection::Create( 'Deutschland', 'de' )
@@ -296,11 +297,7 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
       // Buß- und Bettag - Repentance Day - The wednesday before 11-23 (min: 11-16, max: 11-22)
       Definition::Create( Identifiers::REPENTANCE_DAY )
                 ->setName( 'Buß- und Bettag' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return Niirrty\Date\DateTime::Parse(
-                      ( new \DateTime( $year . '-11-23' ) )->modify( 'last wednesday' )
-                   );
-                } )
+                ->setDynamicDateCallback( new ModifyDateCallback( 11, 23, 'last wednesday' ) )
                 ->setValidRegions( [ 12 ] )
                 ->addValidRegionsRange( 16, 31 )
                 ->setNameTranslations( [

@@ -14,8 +14,6 @@ declare( strict_types = 1 );
 namespace Niirrty\Holiday;
 
 
-use Niirrty\Date\DateTime;
-
 
 class Holiday
 {
@@ -67,6 +65,13 @@ class Holiday
     */
    protected $_languageId;
 
+   /**
+    * The original holiday date before any move conditions.
+    *
+    * @type \Niirrty\Date\DateTime|null
+    */
+   protected $_movedFromDate;
+
    // </editor-fold>
 
 
@@ -87,6 +92,7 @@ class Holiday
       $this->_name               = $identifier;
       $this->_regions            = [ -1 ];
       $this->_languageId         = null;
+      $this->_movedFromDate      = null;
 
    }
 
@@ -138,9 +144,9 @@ class Holiday
    /**
     * Gets the holiday date.
     *
-    * @return \Niirrty\Date\DateTime|null
+    * @return \DateTime|null
     */
-   public function getDate() : ?DateTime
+   public function getDate() : ?\DateTime
    {
 
       return $this->_date;
@@ -169,6 +175,30 @@ class Holiday
    {
 
       return $this->_languageId;
+
+   }
+
+   /**
+    * Gets the original holiday date before any conditional movements.
+    *
+    * @return \DateTime|null
+    */
+   public function getMovedFromDate() : ?\DateTime
+   {
+
+      return $this->_movedFromDate;
+
+   }
+
+   /**
+    * Gets if the original holiday date is different before and after any conditional movements.
+    *
+    * @return \DateTime|null
+    */
+   public function hasMovedFromDate() : bool
+   {
+
+      return null !== $this->_movedFromDate;
 
    }
 
@@ -210,10 +240,10 @@ class Holiday
    /**
     * Sets the holiday date.
     *
-    * @param  \Niirrty\Date\DateTime $date
+    * @param  \DateTime $date
     * @return \Niirrty\Holiday\Holiday
     */
-   public function setDate( DateTime $date ) : Holiday
+   public function setDate( \DateTime $date ) : Holiday
    {
 
       $this->_date = $date;
@@ -252,6 +282,21 @@ class Holiday
    {
 
       $this->_languageId = $languageId;
+
+      return $this;
+
+   }
+
+   /**
+    * Sets the original holiday date before any conditional movements.
+    *
+    * @param \DateTime|null $date
+    * @return \Niirrty\Holiday\Holiday
+    */
+   public function setMovedFromDate( ?\DateTime $date ) : Holiday
+   {
+
+      $this->_movedFromDate = $date;
 
       return $this;
 

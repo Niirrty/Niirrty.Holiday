@@ -5,6 +5,25 @@ A extendable international holyday library.
 Its realy easy to define holidays for other countries than initially supported. For mor information see
 [Define country depending holidays](#define-country-depending-holidays) 
 
+## Installation
+
+This is a package available via composer:
+
+```bash
+composer require niirrty/niirrty.holiday ^1.1 
+```
+
+or inside the `require` area of the `composer.json`:
+
+```json
+{
+   "require": {
+                "php": ">=7.1",
+                "niirrty/niirrty.holiday": "^1.1"
+              }
+}
+```
+
 ## Usage
 
 ```php
@@ -12,10 +31,13 @@ Its realy easy to define holidays for other countries than initially supported. 
 
 use Niirrty\Holiday\CountryDefinitionsFactory;
 
+// Load the country depending ('de' == 'Germany') holiday definitions
 $holidayDefinitions = CountryDefinitionsFactory::Create( 'de' );
 
-$holidays = $holidayDefinitions->getHolidays( 2018, 'en' )->startsAt( 1, 1 );
+// Get the german holidays for year 2018 in english language
+$holidays = $holidayDefinitions->getHolidays( 2018, 'en' );
 
+// Output small info about the holidays
 foreach ( $holidays as $holiday )
 {
    echo $holiday->getDate()->format( 'Y-m-d' ), ' : ', $holiday->getName(), "\n";
@@ -26,6 +48,9 @@ The returned collection inside `$holidays` contain all holidays of defined count
 language names (en) for used year `2018`
 
 Each collection item is a Object of type `\Niirrty\Holiday\Holiday`
+
+`CountryDefinitionsFactory::Create(…)` also supports a 2nd parameter. With it you can define a other folder
+to get holiday definition data from.
 
 ## Supported Countries
 
@@ -262,32 +287,55 @@ If a holiday is only valid for one or more specific regions it can be declared b
 You have to define a callback that calculate the dynamic holiday depending to a year and return it.
 Its done by calling `setDynamicDateCallback( … )`
 
+Here you have to pass a implementation of `Niirrty\Holiday\Callbacks\IDynamicDateCallback`
+
 ```php
 <?php
 
             // Early May Bank Holiday - The 1st monday in mai
             Definition::Create( 'Early May Bank Holiday' )
                       ->setName( 'Early May Bank Holiday' )
-                      ->setDynamicDateCallback( function( $year ) {
-                         return new DateTime( 'first monday of may ' . $year );
-                      } )
+                      ->setDynamicDateCallback(
+                         new \Niirrty\Holiday\Callbacks\NamedDateCallback( 'first monday of may ' ) )
                       ->setNameTranslations( [
                          'en' => 'Early May Bank Holiday',
                          'jp' => '月上旬バンクホリデー'
                       ] )
 ```
 
-### Holiday valid for a year range
+Other currently known callbacks are:
 
-You can use `setValidFromYear( … )` to set a year where the holiday starts to be valid. If not defined the lowest
-usable date is the default value.
+* `\Niirrty\Holiday\Callbacks\ModifyDateCallback`: If a date should be calculated by a DateTime modification
+  (modify() method format), it can be defined by this dynamic date callback.
+* `\Niirrty\Holiday\Callbacks\EasterDateCallback`: Calculates the christian easter sunday
 
-You can use `setValidToYear( … )` to set a year where the holiday ends to be valid. If not defined there is no limit.
+But its really simple to implement your own:
 
-If `ValidToYear` is before `ValidFromYear` it means the holiday ends to be valid at `ValidToYear` and newly becomes the
-valid state at year `ValidFromYear`
+```php
+<?php
 
-If there are more ranges you must define the holiday multiple times but ATTENTION: NEVER USE THE SAME IDENTIFIER! 
+declare( strict_types = 1 );
+
+namespace My\Callbacks;
+
+use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
+use Niirrty\Date\DateTime;
+
+class MyDynamicDateCallback implements IDynamicDateCallback
+{
+   
+   public function calculate( int $year ) : \DateTime
+   {
+   
+      return ( 0 === $year % 2 )
+         ? DateTime::Create( $year, 5, 1 )
+         : DateTime::Create( $year, 5, 2 );
+   
+   }
+   
+}
+
+``` 
 
 #### Special case - Easter depending holidays
 
@@ -310,3 +358,15 @@ Easter depending holidays (dynamic base date) can be easy created by using `Crea
                          'jp' => '良い金曜日'
                       ] ),
 ```
+
+### Holiday valid for a year range
+
+You can use `setValidFromYear( … )` to set a year where the holiday starts to be valid. If not defined the lowest
+usable date is the default value.
+
+You can use `setValidToYear( … )` to set a year where the holiday ends to be valid. If not defined there is no limit.
+
+If `ValidToYear` is before `ValidFromYear` it means the holiday ends to be valid at `ValidToYear` and newly becomes the
+valid state at year `ValidFromYear`
+
+If there are more ranges you must define the holiday multiple times but ATTENTION: NEVER USE THE SAME IDENTIFIER!

@@ -81,7 +81,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ] ),
 
       // 04-27 : Abolition de l’esclavage - Abolition of slavery
-      Definition::Create( 'Abolition of slavery' )
+      Definition::Create( 'Abolition of slavery (Mayotte)' )
                 ->setName( 'Abolition de l’esclavage' )
                 ->setStaticDate( 4, 27 )
                 ->setNameTranslations( [
@@ -114,7 +114,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
       // 05-08 : Victoire 1945 - Day of victory…
       Definition::Create( Identifiers::DAY_OF_VICTORY )
                 ->setName( 'Victoire 1945' )
-                ->setStaticDate( 5, 1 )
+                ->setStaticDate( 5, 8 )
                 ->setNameTranslations( [
                    'fr' => 'Victoire 1945',
                    'en' => 'Day of victory',
@@ -127,7 +127,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ] ),
 
       // 05-22 : Abolition de l’esclavage - Abolition of slavery
-      Definition::Create( 'Abolition of slavery' )
+      Definition::Create( 'Abolition of slavery (Martinique)' )
                 ->setName( 'Abolition de l’esclavage' )
                 ->setStaticDate( 5, 22 )
                 ->setNameTranslations( [
@@ -143,7 +143,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ->setValidRegions( [ 14 ] ),
 
       // 05-27 : Abolition de l’esclavage - Abolition of slavery
-      Definition::Create( 'Abolition of slavery' )
+      Definition::Create( 'Abolition of slavery (Guadeloupe)' )
                 ->setName( 'Abolition de l’esclavage' )
                 ->setStaticDate( 5, 27 )
                 ->setNameTranslations( [
@@ -186,24 +186,10 @@ return DefinitionCollection::Create( 'France', 'fr' )
                    'jp' => 'ウィットサンデー'
                 ] ),
 
-      // Lundi de Pentecôte - Whit Monday (Easter sunday + 50 days) : …-2003
+      // Lundi de Pentecôte - Whit Monday (Easter sunday + 50 days) : …-2003 + 2008-…
       Definition::CreateEasterDepending( Identifiers::WHIT_MONDAY, 50 )
                 ->setName( 'Lundi de Pentecôte' )
                 ->setValidToYear( 2003 )
-                ->setNameTranslations( [
-                   'fr' => 'Lundi de Pentecôte',
-                   'en' => 'Whit Monday',
-                   'de' => 'Pfingstmontag',
-                   'it' => 'Lunedi di Pentecoste',
-                   'es' => 'Lunes de Pentecostés',
-                   'pt' => 'Whit segunda-feira',
-                   'cz' => 'Svatodušní pondělí',
-                   'jp' => '聖霊降臨祭の月曜日'
-                ] ),
-
-      // Lundi de Pentecôte - Whit Monday (Easter sunday + 50 days) : 2008-…
-      Definition::CreateEasterDepending( Identifiers::WHIT_MONDAY, 50 )
-                ->setName( 'Lundi de Pentecôte' )
                 ->setValidFromYear( 2008 )
                 ->setNameTranslations( [
                    'fr' => 'Lundi de Pentecôte',
@@ -217,7 +203,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ] ),
 
       // 06-10 : Abolition de l’esclavage - Abolition of slavery
-      Definition::Create( 'Abolition of slavery' )
+      Definition::Create( 'Abolition of slavery (Guyane française)' )
                 ->setName( 'Abolition de l’esclavage' )
                 ->setStaticDate( 6, 10 )
                 ->setNameTranslations( [
@@ -267,7 +253,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ->setName( 'Toussaint' )
                 ->setStaticDate( 11, 1 )
                 ->setNameTranslations( [
-                   'fr' => '',
+                   'fr' => 'Toussaint',
                    'en' => 'All Saints\' Day',
                    'de' => 'Allerheiligen',
                    'it' => 'Ognissanti',
@@ -293,7 +279,7 @@ return DefinitionCollection::Create( 'France', 'fr' )
                 ] ),
 
       // 12-20 : Abolition de l’esclavage - Abolition of slavery
-      Definition::Create( 'Abolition of slavery' )
+      Definition::Create( 'Abolition of slavery (Réunion)' )
                 ->setName( 'Abolition de l’esclavage' )
                 ->setStaticDate( 12, 20 )
                 ->setNameTranslations( [

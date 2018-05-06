@@ -105,7 +105,7 @@ return DefinitionCollection::Create( 'Schweiz', 'de' )
       Definition::CreateEasterDepending( Identifiers::GOOD_FRIDAY, -2 )
                 ->setName( 'Karfreitag' )
                 ->setValidRegions( range( 0, 19 ) )
-                ->setValidRegions( [ 21, 23, 24, 25 ] )
+                ->addValidRegions( 21, 23, 24, 25 )
                 ->setNameTranslations( [
                    'de' => 'Karfreitag',
                    'en' => 'Good Friday',
@@ -121,7 +121,7 @@ return DefinitionCollection::Create( 'Schweiz', 'de' )
       Definition::CreateEasterDepending( Identifiers::EASTER_MONDAY, 1 )
                 ->setName( 'Ostermontag' )
                 ->setValidRegions( range( 0, 21 ) )
-                ->setValidRegions( [ 23, 24, 25 ] )
+                ->addValidRegions( 23, 24, 25 )
                 ->setNameTranslations( [
                    'de' => 'Ostermontag',
                    'en' => 'Easter Monday',

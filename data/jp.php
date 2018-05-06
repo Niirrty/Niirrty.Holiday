@@ -10,7 +10,7 @@ use Niirrty\Holiday\DateMove\MoveCondition;
 use Niirrty\Holiday\Definition;
 use Niirrty\Holiday\DefinitionCollection;
 use Niirrty\Holiday\Identifiers;
-use Niirrty\Date\DateTime;
+use Niirrty\Holiday\Callbacks\NamedDateCallback;
 
 
 $isSunday = function ( \DateTimeInterface $date ) : bool
@@ -46,9 +46,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
       Definition::Create( 'Coming of Age Day' )
                 ->setName( '成人の日' )
                 ->setDescription( 'Seijin no Hi' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'second monday of january ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'second monday of january ' ) )
                 ->setValidFromYear( 2000 )
                 ->setNameTranslations( [
                    'jp' => '成人の日',
@@ -62,7 +60,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
                 ] ),
 
       // 01-15 (valid between years 1948 and 1999) : seijin no hi- 成人の日
-      Definition::Create( 'Coming of Age Day' )
+      Definition::Create( 'Coming of Age Day (1948-1999)' )
                 ->setName( '成人の日' )
                 ->setDescription( 'Seijin no Hi' )
                 ->setStaticDate( 1, 15 )
@@ -137,7 +135,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
                 ] ),
 
       // 04-29 : midori no hi - みどりの日 - 1989-2006
-      Definition::Create( 'Day of the green' )
+      Definition::Create( 'Day of the green (1989-2006)' )
                 ->setName( 'みどりの日' )
                 ->setDescription( 'midori no hi' )
                 ->setStaticDate( 4, 29 )
@@ -216,9 +214,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
       Definition::Create( 'Day of the sea' )
                 ->setName( '海の日' )
                 ->setDescription( 'umi no hi' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'third monday of july ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'third monday of july ' ) )
                 ->setValidFromYear( 1996 )
                 ->setNameTranslations( [
                    'jp' => '海の日',
@@ -254,9 +250,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
       Definition::Create( 'Day of honor of the ancients' )
                 ->setName( '敬老の日' )
                 ->setDescription( 'keirō no hi' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'third monday of september ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'third monday of september ' ) )
                 ->setValidFromYear( 2003 )
                 ->setNameTranslations( [
                    'jp' => '敬老の日',
@@ -270,7 +264,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
                 ] ),
 
       // 09-15 beginning with year 1966 up to 2002 : taiiku no hi- 敬老の日
-      Definition::Create( 'Day of honor of the ancients' )
+      Definition::Create( 'Day of honor of the ancients (1966-2002)' )
                 ->setStaticDate( 9, 15 )
                 ->setName( '敬老の日' )
                 ->setDescription( 'keirō no hi' )
@@ -309,9 +303,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
       Definition::Create( 'Day of sports' )
                 ->setName( '体育の日' )
                 ->setDescription( 'taiiku no hi' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'second monday of october ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'second monday of october ' ) )
                 ->setValidFromYear( 2000 )
                 ->setNameTranslations( [
                    'jp' => '体育の日',
@@ -325,7 +317,7 @@ return DefinitionCollection::Create( '日本', 'jp' )
                 ] ),
 
       // 10-10 : 体育の日 taiiku no hi : …-1999
-      Definition::Create( 'Day of sports' )
+      Definition::Create( 'Day of sports (…-1999)' )
                 ->setStaticDate( 10, 10 )
                 ->setName( '体育の日' )
                 ->setDescription( 'taiiku no hi' )

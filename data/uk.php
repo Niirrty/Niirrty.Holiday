@@ -11,19 +11,7 @@ use Niirrty\Holiday\Definition;
 use Niirrty\Holiday\DefinitionCollection;
 use Niirrty\Holiday\Identifiers;
 use Niirrty\Holiday\DateMove\MoveCondition;
-use Niirrty\Date\DateTime;
-
-
-$isSunday = function ( \DateTimeInterface $date ) : bool
-{
-   return 0 === ( (int) $date->format( 'w' ) );
-};
-
-
-$isSaturday = function ( \DateTimeInterface $date ) : bool
-{
-   return 6 === ( (int) $date->format( 'w' ) );
-};
+use Niirrty\Holiday\Callbacks\NamedDateCallback;
 
 
 return DefinitionCollection::Create( 'United Kingdom', 'uk' )
@@ -136,9 +124,7 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
       // Early May Bank Holiday - The 1st monday in mai
       Definition::Create( 'Early May Bank Holiday' )
                 ->setName( 'Early May Bank Holiday' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'first monday of may ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'first monday of may ' ) )
                 ->setNameTranslations( [
                    'en' => 'Early May Bank Holiday',
                    'jp' => '月上旬バンクホリデー'
@@ -164,9 +150,7 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
       // Spring Bank Holiday - The last monday of mai
       Definition::Create( 'Spring Bank Holiday' )
                 ->setName( 'Spring Bank Holiday' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'last monday of may ' . $year );
-                } )
+                ->setDynamicDateCallback(new NamedDateCallback( 'last monday of may ' ) )
                 ->setNameTranslations( [
                    'en' => 'Spring Bank Holiday',
                    'jp' => '春のバンクホリデー'
@@ -175,9 +159,7 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
       // Tourist Trophy Senior Race Day - 2nd friday of june
       Definition::Create( 'Tourist Trophy Senior Race Day' )
                 ->setName( 'Tourist Trophy Senior Race Day' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'second friday of june ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'second friday of june ' ) )
                 ->setNameTranslations( [
                    'en' => 'Tourist Trophy Senior Race Day',
                    'jp' => 'ツーリスト・トロフィーシニアレースの日'
@@ -225,9 +207,7 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
       // August Bank Holiday - 1st monday of august
       Definition::Create( 'August Bank Holiday Scotland' )
                 ->setName( 'August Bank Holiday' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'first monday of august ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'first monday of august ' ) )
                 ->setNameTranslations( [
                    'en' => 'August Bank Holiday',
                    'jp' => '8月バンクホリデー'
@@ -238,9 +218,7 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
       // August Bank Holiday - last monday of august
       Definition::Create( 'August Bank Holiday' )
                 ->setName( 'August Bank Holiday' )
-                ->setDynamicDateCallback( function( $year ) {
-                   return new DateTime( 'last monday of august ' . $year );
-                } )
+                ->setDynamicDateCallback( new NamedDateCallback( 'last monday of august ' ) )
                 ->setNameTranslations( [
                    'en' => 'August Bank Holiday',
                    'jp' => '8月バンクホリデー'
@@ -248,8 +226,8 @@ return DefinitionCollection::Create( 'United Kingdom', 'uk' )
                 ->setValidRegions( [ 1, 7 ] ), // <- England, Wales
 
       // 12-15 : Homecoming Day
-      Definition::Create( Identifiers::CHRISTMAS_DAY )
-                ->setStaticDate( 12, 25 )
+      Definition::Create( 'Homecoming Day' )
+                ->setStaticDate( 12, 15 )
                 ->setName( 'Homecoming Day' )
                 ->setNameTranslations( [
                    'en' => 'Homecoming Day',

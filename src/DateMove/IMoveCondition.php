@@ -47,20 +47,19 @@ interface IMoveCondition extends IValidStatus
    /**
     * Gets if the current date move implementation condition matches the defined date.
     *
-    * @param \Niirrty\Date\DateTime $date
+    * @param \DateTimeInterface $date
     * @return bool
     */
-   public function matches( \Niirrty\Date\DateTime $date ) : bool;
+   public function matches( \DateTimeInterface $date ) : bool;
 
    /**
     * Moves the defined date by current defined amount of days and return the new instance.
     *
     * The check if the date value matches the move condition is not included! You have to call it before.
     *
-    * @param \Niirrty\Date\DateTime $date
-    * @param  array $regions The optional indexes of all country regions where the holiday is valid for.
-    * @return \Niirrty\Date\DateTime
+    * @param \DateTime $date
+    * @return \DateTime
     */
-   public function move( \Niirrty\Date\DateTime $date, array $regions = [] ) : \Niirrty\Date\DateTime;
+   public function move( \DateTime $date ) : \DateTime;
 
 }

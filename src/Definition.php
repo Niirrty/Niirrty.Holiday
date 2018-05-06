@@ -15,6 +15,7 @@ namespace Niirrty\Holiday;
 
 
 use Niirrty\Date\DateTime;
+use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
 use Niirrty\Holiday\DateMove\IMoveCondition;
 use Niirrty\Holiday\DateMove\MoveCondition;
 
@@ -60,10 +61,7 @@ class Definition
    /**
     * The callback for calculate a dynamic date.
     *
-    * The callback must accept one parameter of type int that passes the year to the callback. The callback must
-    * return a \DateTime instance.
-    *
-    * @type callable|null
+    * @type \Niirrty\Holiday\Callbacks\IDynamicDateCallback|null
     */
    protected $_dynamicDate;
 
@@ -222,14 +220,11 @@ class Definition
    }
 
    /**
-    * Gets the callback for calculate a dynamic date.
+    * Gets the callback for calculate a dynamic date or NULL if no callback is defined.
     *
-    * The callback must accept one parameter of type int that passes the year to the callback. The callback must
-    * return a \DateTime instance.
-    *
-    * @return callable|null
+    * @return \Niirrty\Holiday\Callbacks\IDynamicDateCallback|null
     */
-   public function getDynamicDateCallback() : ?callable
+   public function getDynamicDateCallback() : ?IDynamicDateCallback
    {
 
       return $this->_dynamicDate;
@@ -244,7 +239,7 @@ class Definition
    public function hasDynamicDateCallback() : bool
    {
 
-      return null !== $this->_dynamicDate && \is_callable( $this->_dynamicDate );
+      return null !== $this->_dynamicDate;
 
    }
 
@@ -316,7 +311,7 @@ class Definition
    public function hasBaseCallbackName() : bool
    {
 
-      return null !== $this->_baseCallbackName && \is_callable( $this->_baseCallbackName );
+      return ! empty( $this->_baseCallbackName );
 
    }
 
@@ -418,7 +413,7 @@ class Definition
    public function getValidRegions() : array
    {
 
-      return $this->_moveConditions;
+      return $this->_regions;
 
    }
 
@@ -543,13 +538,10 @@ class Definition
    /**
     * Sets the callback for calculate a dynamic date.
     *
-    * The callback must accept one parameter of type int that passes the year to the callback. The callback must
-    * return a \Niirrty\Date\DateTime instance.
-    *
-    * @param  callable|null $callback
+    * @param  \Niirrty\Holiday\Callbacks\IDynamicDateCallback|null $callback
     * @return \Niirrty\Holiday\Definition
     */
-   public function setDynamicDateCallback( ?callable $callback ) : Definition
+   public function setDynamicDateCallback( ?IDynamicDateCallback $callback ) : Definition
    {
 
       $this->_dynamicDate = $callback;
@@ -621,8 +613,13 @@ class Definition
          $this->_calculatedHolidays = [];
       }
 
-      return $this->clearMoveConditions()
-                  ->addMoveConditions( $conditions );
+      $this->clearMoveConditions();
+      foreach ( $conditions as $condition )
+      {
+         $this->addMoveCondition( $condition );
+      }
+
+      return $this;
 
    }
 
@@ -779,11 +776,16 @@ class Definition
 
       if ( -1 === $regionIndex )
       {
-         if ( -1 !== $this->_regions )
+         if ( [ -1 ] !== $this->_regions )
          {
             $this->_regions = [ -1 ];
          }
+         return $this;
+      }
 
+      if ( -1 === $this->_regions[ 0 ] )
+      {
+         $this->_regions = [ $regionIndex ];
          return $this;
       }
 
@@ -888,7 +890,8 @@ class Definition
     * @return \Niirrty\Holiday\Holiday|null
     * @throws Exception
     */
-   public function toHoliday( int $year, array $globalCallbacks, array $regions = [], ?string $languageId = null ) : ?Holiday
+   public function toHoliday( int $year, array $globalCallbacks, array $regions = [], ?string $languageId = null )
+      : ?Holiday
    {
 
       // Get from cache if defined
@@ -919,48 +922,37 @@ class Definition
          }
       }
 
-
       // Define the final date
+      $baseDate  = null;
+      $movedDate = null;
 
       // If a static holiday base month and day is defined => use it to generate the required DateTime
       if ( null !== $this->_month && null !== $this->_day )
       {
          // Its a static holiday
-         $dt = DateTime::Create( $year, $this->_month, $this->_day );
+         $baseDate = DateTime::Create( $year, $this->_month, $this->_day );
          // Move it if requested
-         $dt = $this->moveDateByConditions( $dt );
+         $movedDate = $this->moveDateByConditions( clone $baseDate );
       }
 
       // If a dynamic holiday callback is defined => use it to generate the required DateTime
       else if ( null !== $this->_dynamicDate )
       {
          // Its a dynamic holiday
-         $dt = \call_user_func( $this->_dynamicDate, $year );
-         if ( ! ( $dt instanceof DateTime ) )
-         {
-            throw new Exception(
-               'Can not get a holiday date if dynamic date callback not return a \\Niirrty\\Date\\DateTime instance!'
-            );
-         }
+         $baseDate = $this->_dynamicDate->calculate( $year );
          // Move it if requested
-         $dt = $this->moveDateByConditions( $dt );
+         $movedDate = $this->moveDateByConditions( clone $baseDate );
       }
 
       // If a dynamic base callback name is defined => use it to generate the required DateTime
       else if ( ! empty( $this->_baseCallbackName ) &&
                 isset( $globalCallbacks[ $this->_baseCallbackName ] ) &&
-                \is_callable( $globalCallbacks[ $this->_baseCallbackName ] ) )
+                ( $globalCallbacks[ $this->_baseCallbackName ] instanceof IDynamicDateCallback ) )
       {
          // Its a dynamic holiday
-         $dt = \call_user_func( $globalCallbacks[ $this->_baseCallbackName ], $year );
-         if ( ! ( $dt instanceof DateTime ) )
-         {
-            throw new Exception(
-               'Can not get a holiday date if dyn. date base callback not return a \\Niirrty\\Date\\DateTime instance!'
-            );
-         }
+         $baseDate = $globalCallbacks[ $this->_baseCallbackName ]->calculate( $year );
          // Move it if requested
-         $dt = $this->moveDateByConditions( $dt );
+         $movedDate = $this->moveDateByConditions( clone $baseDate );
       }
 
       // Bad config
@@ -972,40 +964,73 @@ class Definition
 
 
       // Get the real year after date movements
-      $year = $dt->getYear();
+      $year = (int) $movedDate->format( 'Y' );
 
 
       // Get valid from and valid to year and set defaults if they are unused
       $validFromYear = ( null !== $this->_validFromYear ) ? $this->_validFromYear : 0;
-      $validToYear   = ( null !== $this->_validToYear )   ? $this->_validToYear   : $year;
+      $validToYear   = ( null !== $this->_validToYear )   ? $this->_validToYear   : 0;
 
 
-      // Ensure the year is inside a valid range. If not, null is returned
-      if ( $validFromYear > $validToYear )
+      if ( $validFromYear > 0 || $validToYear > 0 )
       {
-         // 'from' is bigger than 'to'. It means   =>   minYear-'to' ……… 'from'-nowYear
-         if ( $year > $validToYear && $year < $validFromYear )
+
+         if ( $validFromYear > 0 )
          {
-            $this->_calculatedHolidays[ $year ] = null;
-            return $this->_calculatedHolidays[ $year ];
+            if ( $validToYear > 0 )
+            {
+               if ( $validFromYear > $validToYear )
+               {
+                  // from=2002 to=2000 …-2000 + 2002-…
+                  if ( $year > $validToYear && $year < $validFromYear )
+                  {
+                     $this->_calculatedHolidays[ $year ] = null;
+                     return $this->_calculatedHolidays[ $year ];
+                  }
+               }
+               else
+               {
+                  // from=1999 to=2000 1999-2000
+                  if ( $year < $validFromYear || $year > $validToYear )
+                  {
+                     $this->_calculatedHolidays[ $year ] = null;
+                     return $this->_calculatedHolidays[ $year ];
+                  }
+               }
+            }
+            else
+            {
+               if ( $year < $validFromYear )
+               {
+                  $this->_calculatedHolidays[ $year ] = null;
+                  return $this->_calculatedHolidays[ $year ];
+               }
+            }
          }
-      }
-      else
-      {
-         // 'from' is lower than 'to'. It means   =>   'from' ……… 'to'
-         if ( $year < $validFromYear || $year > $validToYear )
+         else
          {
-            $this->_calculatedHolidays[ $year ] = null;
-            return $this->_calculatedHolidays[ $year ];
+            if ( $year > $validToYear )
+            {
+               $this->_calculatedHolidays[ $year ] = null;
+               return $this->_calculatedHolidays[ $year ];
+            }
          }
+
       }
+
 
       $this->_calculatedHolidays[ $year ] = ( new Holiday( $this->_identifier ) )
          ->setDescription( $this->_description )
-         ->setDate( $dt )
+         ->setDate( $movedDate )
          ->setName( $this->getNameTranslated( $languageId ) )
          ->setLanguage( $languageId )
          ->setValidRegions( $this->_regions );
+
+      if ( $baseDate != $movedDate )
+      {
+         $this->_calculatedHolidays[ $year ]->setMovedFromDate( $baseDate );
+      }
+
 
       return $this->_calculatedHolidays[ $year ];
 
@@ -1019,7 +1044,7 @@ class Definition
 
    // <editor-fold desc="// –––––––   P R O T E C T E D   M E T H O D S   ––––––––––––––––––––––––––––––––">
 
-   protected function moveDateByConditions( DateTime $date ) : DateTime
+   protected function moveDateByConditions( \DateTime $date ) : \DateTime
    {
 
       foreach ( $this->_moveConditions as $moveCondition )
@@ -1055,16 +1080,21 @@ class Definition
    public static function CreateEasterDepending( string $identifier, int $moveDays ) : Definition
    {
 
-      return static::Create( $identifier )
-         ->setBaseCallbackName( 'easter_sunday' )
-         ->addMoveCondition( MoveCondition::Create( $moveDays, function() { return true; } ));
+      $definition =  static::Create( $identifier )->setBaseCallbackName( 'easter_sunday' );
+
+      if ( 0 !== $moveDays )
+      {
+         $definition->addMoveCondition( MoveCondition::Create( $moveDays, function() { return true; } ) );
+      }
+
+      return $definition;
 
    }
 
    public static function CreateNewYear( $localName ) : Definition
    {
 
-      return Definition::Create( \Niirrty\Holiday\Identifiers::NEW_YEAR )
+      return Definition::Create( Identifiers::NEW_YEAR )
          ->setStaticDate( 1, 1 )
          ->setName( $localName );
 

@@ -4,7 +4,7 @@
  * @copyright  (c) 2017, Ni Irrty
  * @package        Niirrty\Web
  * @since          25.11.17
- * @version        0.1.0
+ * @version        1.1.0
  */
 
 
@@ -12,9 +12,6 @@ declare( strict_types = 1 );
 
 
 namespace Niirrty\Holiday\DateMove;
-
-
-use Niirrty\Date\DateTime;
 
 
 /**
@@ -182,11 +179,11 @@ class MoveCondition implements IMoveCondition
    /**
     * Gets if the current date move implementation condition matches the defined date.
     *
-    * @param \Niirrty\Date\DateTime $date
+    * @param \DateTimeInterface     $date
     * @param array                  $regions
     * @return bool
     */
-   public final function matches( DateTime $date, array $regions = [] ) : bool
+   public final function matches( \DateTimeInterface $date, array $regions = [] ) : bool
    {
 
       if ( ! \is_callable( $this->_conditionCallback ) )
@@ -225,11 +222,10 @@ class MoveCondition implements IMoveCondition
     *
     * The check if the date value matches the move condition is not included! You have to call it before.
     *
-    * @param  \Niirrty\Date\DateTime $date
-    * @param  array                  $regions
-    * @return \Niirrty\Date\DateTime
+    * @param  \DateTime $date
+    * @return \DateTime
     */
-   public final function move( DateTime $date, array $regions = [] ) : DateTime
+   public final function move( \DateTime $date ) : \DateTime
    {
 
       $clone = clone $date;
