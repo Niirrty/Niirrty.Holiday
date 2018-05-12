@@ -72,6 +72,13 @@ class Holiday
     */
    protected $_movedFromDate;
 
+   /**
+    * Define if the holiday is a rest day (work free day)
+    *
+    * @type bool
+    */
+   protected $_isRestDay;
+
    // </editor-fold>
 
 
@@ -93,6 +100,7 @@ class Holiday
       $this->_regions            = [ -1 ];
       $this->_languageId         = null;
       $this->_movedFromDate      = null;
+      $this->_isRestDay          = true;
 
    }
 
@@ -193,12 +201,24 @@ class Holiday
    /**
     * Gets if the original holiday date is different before and after any conditional movements.
     *
-    * @return \DateTime|null
+    * @return bool
     */
    public function hasMovedFromDate() : bool
    {
 
       return null !== $this->_movedFromDate;
+
+   }
+
+   /**
+    * Gets if the holiday is a rest day (work free day)
+    *
+    * @return bool
+    */
+   public function getIsRestDay() : bool
+   {
+
+      return $this->_isRestDay;
 
    }
 
@@ -297,6 +317,21 @@ class Holiday
    {
 
       $this->_movedFromDate = $date;
+
+      return $this;
+
+   }
+
+   /**
+    * Sets if the holiday is a rest day (work free day)
+    *
+    * @param bool $isRestDay
+    * @return \Niirrty\Holiday\Holiday
+    */
+   public function setIsRestDay( bool $isRestDay ) : Holiday
+   {
+
+      $this->_isRestDay = $isRestDay;
 
       return $this;
 

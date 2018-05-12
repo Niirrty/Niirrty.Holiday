@@ -125,4 +125,16 @@ interface Identifiers
     */
    public const SAINT_PATRICKS_DAY = 'Saint Patrick\'s Day';
 
+   public const VALENTINES_DAY = 'Valentine\'s Day';
+
+   public const CARNIVAL = 'Carnival';
+
+   public const EARLY_SPRING_METEO = 'Early spring - meteorological';
+
+   public const EARLY_SPRING = 'Early spring';
+
+   public const EQUINOX_MARCH = 'Equinox March';
+
+   public const EQUINOX_SEPTEMBER = 'Equinox September';
+
 }

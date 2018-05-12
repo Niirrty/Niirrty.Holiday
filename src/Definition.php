@@ -143,6 +143,13 @@ class Definition
     */
    protected $_regions;
 
+   /**
+    * Define if the holiday is a rest day (work free day)
+    *
+    * @type bool
+    */
+   protected $_isRestDay;
+
    // </editor-fold>
 
 
@@ -171,6 +178,7 @@ class Definition
       $this->_name               = $identifier;
       $this->_nameTranslations   = [];
       $this->_regions            = [ -1 ];
+      $this->_isRestDay          = true;
 
    }
 
@@ -414,6 +422,18 @@ class Definition
    {
 
       return $this->_regions;
+
+   }
+
+   /**
+    * Gets if the holiday is a rest day (work free day)
+    *
+    * @return bool
+    */
+   public function getIsRestDay() : bool
+   {
+
+      return $this->_isRestDay;
 
    }
 
@@ -855,6 +875,21 @@ class Definition
 
    }
 
+   /**
+    * Sets if the holiday is a rest day (work free day)
+    *
+    * @param bool $isRestDay
+    * @return \Niirrty\Holiday\Definition
+    */
+   public function setIsRestDay( bool $isRestDay ) : Definition
+   {
+
+      $this->_isRestDay = $isRestDay;
+
+      return $this;
+
+   }
+
    // </editor-fold>
 
 
@@ -1024,7 +1059,8 @@ class Definition
          ->setDate( $movedDate )
          ->setName( $this->getNameTranslated( $languageId ) )
          ->setLanguage( $languageId )
-         ->setValidRegions( $this->_regions );
+         ->setValidRegions( $this->_regions )
+         ->setIsRestDay( $this->_isRestDay );
 
       if ( $baseDate != $movedDate )
       {

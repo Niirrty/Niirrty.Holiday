@@ -189,6 +189,12 @@ class DefinitionTest extends TestCase
       $this->assertSame( [ -1 ], $this->definitionDynamic->getValidRegions() );
 
    }
+   public function testGetIsRestDay()
+   {
+
+      $this->assertSame( true, $this->definitionStatic->getIsRestDay() );
+
+   }
 
    public function testSetName()
    {
@@ -342,6 +348,12 @@ class DefinitionTest extends TestCase
 
       $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertSame( [ 2, 4, 6 ], $this->definitionDynamic->addValidRegionsArray( [ 2, 4, 6 ] )->getValidRegions() );
+
+   }
+   public function testSetIsRestDay()
+   {
+
+      $this->assertSame( false, $this->definitionStatic->setIsRestDay( false )->getIsRestDay() );
 
    }
 

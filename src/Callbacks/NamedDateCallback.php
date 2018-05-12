@@ -54,8 +54,8 @@ class NamedDateCallback implements IDynamicDateCallback
    public function __construct( ?string $prefix, ?string $appendix = null )
    {
 
-      $this->_prefix   = $prefix;
-      $this->_appendix = $appendix;
+      $this->_prefix   = ( null !== $prefix   ) ? ( \rtrim( $prefix  , " \t\r\n" ) . ' ' ) : $prefix;
+      $this->_appendix = ( null !== $appendix ) ? ( \rtrim( $appendix, " \t\r\n" ) . ' ' ) : $appendix;
 
    }
 

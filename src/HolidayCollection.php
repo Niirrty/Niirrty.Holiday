@@ -399,10 +399,10 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    /**
     * Extract the names of all regions with the defined indexes.
     *
-    * @param  array $regionIndexes The indexes of the required regions
+    * @param  array $regionIndexes The indexes of the required regions. Empty array means all regions.
     * @return array
     */
-   public function extractRegionNames( array $regionIndexes ) : array
+   public function extractRegionNames( array $regionIndexes = [] ) : array
    {
 
       $names = [];
@@ -473,7 +473,7 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
     *
     * @param int         $month
     * @param int         $day
-    * @param string|null $foundIdentifier Return the holiday identifier if the method return true
+    * @param string|null $foundIdentifier Return the first found holiday identifier if the method return true.
     * @return bool
     */
    public function containsDay( int $month, int $day, string &$foundIdentifier = null ) : bool
@@ -536,7 +536,10 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
    }
 
    /**
-    * Extracts all holidays for the region with defined ID.
+    * Extracts all holidays for the region with defined ID. Region ID means the index of the region within the list
+    * of defined regions.
+    *
+    * If you want to known the names of all defined regions
     *
     * @param int $regionId
     * @return \Niirrty\Holiday\HolidayCollection
@@ -606,9 +609,10 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
 
       $regionId = $this->indexOfRegion( $regionName );
 
-      if ( false === $regionId )
+      if ( false === $regionId || 1 > $regionId )
       {
-         $regionId = 0;
+         return ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+            ->setRegions( $this->_regions );
       }
 
       return $this->byRegionId( $regionId );
@@ -634,6 +638,54 @@ class HolidayCollection implements \ArrayAccess, \IteratorAggregate, \Countable
       }
 
       return $this->byRegionIds( $regionIds );
+
+   }
+
+   /**
+    * Gets only the holidays where working is not required (rest days)
+    *
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function restDays() : HolidayCollection
+   {
+
+      $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+         ->setRegions( $this->_regions );
+
+      foreach ( $this->_data as $identifier => $holiday )
+      {
+         if ( ! $holiday->getIsRestDay() )
+         {
+            continue;
+         }
+         $result->_data[ $identifier ] = $holiday;
+      }
+
+      return $result;
+
+   }
+
+   /**
+    * Gets only the not work free, no rest day holidays
+    *
+    * @return \Niirrty\Holiday\HolidayCollection
+    */
+   public function noRestDays() : HolidayCollection
+   {
+
+      $result = ( new HolidayCollection( $this->_year, $this->_countryName, $this->_countryId ) )
+         ->setRegions( $this->_regions );
+
+      foreach ( $this->_data as $identifier => $holiday )
+      {
+         if ( $holiday->getIsRestDay() )
+         {
+            continue;
+         }
+         $result->_data[ $identifier ] = $holiday;
+      }
+
+      return $result;
 
    }
 
