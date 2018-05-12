@@ -2,6 +2,8 @@
 
 A extendable international holyday library.
 
+[Dieses Dokument in Deutscher Sprache anzeigen](./README.de.md)
+
 Its realy easy to define holidays for other countries than initially supported. For mor information see
 [Define country depending holidays](#define-country-depending-holidays) 
 
@@ -49,22 +51,36 @@ language names (en) for used year `2018`
 
 Each collection item is a Object of type `\Niirrty\Holiday\Holiday`
 
-`CountryDefinitionsFactory::Create(…)` also supports a 2nd parameter. With it you can define a other folder
-to get holiday definition data from.
+`CountryDefinitionsFactory::Create(…)` also supports a 2nd parameter. With it you can define a folder that replaces
+the default, library depending folder with your own, to get holiday definition data from.
+
+The HolidayCollection instance returned by `->getHolidays( … )` above also give you the methods:
+
+* `startsAt( int $month = 1, int $day = 1 ) : HolidayCollection`: This method return all holidays, starting at, or after
+  the defined month and day
+* `byRegionId( int $regionId ) : HolidayCollection`:  Extracts all holidays for the region with defined ID. Region ID
+  means the index of the region within the list of defined regions. You can get the indexes and associates Region names
+  by calling `$regions = $holidays->extractRegionNames();`The keys are the IDs/indexes and the values the names.
+* `byRegionIds( array $regionIds ) : HolidayCollection`: Same than `byRegionId` but for multiple regions.
+* `byRegionName( string $regionName ) : HolidayCollection` Extracts all holidays for the region with defined name.
+* `byRegionNames( array $regionNames ) : HolidayCollection` Extracts all holidays for the region with defined names.
+* `restDays() : HolidayCollection` Gets all work free, rest day holidays
+* `noRestDays() : HolidayCollection` Gets all none work free, no rest day holidays
+
 
 ## Supported Countries
 
 Currently supported countries are:
  
-* `'at'` Austria
-* `'ch'` Swizz
-* `'cz'` Czech
-* `'de'` Germany
-* `'fr'` France
-* `'it'` Italy
-* `'jp'` Nippon
-* `'nl'` Netherlands
-* `'uk'` United Kingdom
+* `'at'` Austria (rest-days and no-rest-days)
+* `'ch'` Swizz (only rest-days)
+* `'cz'` Czech (only rest-days)
+* `'de'` Germany (rest-days and no-rest-days)
+* `'fr'` France (only rest-days)
+* `'it'` Italy (only rest-days)
+* `'jp'` Nippon (only rest-days)
+* `'nl'` Netherlands (only rest-days)
+* `'uk'` United Kingdom (only rest-days)
 
 You can also get the supported countries programmatically:
 
@@ -153,7 +169,8 @@ Now you must get some information about the holidays (wikipedia is a good start 
 * The holiday `day` and `month`, if static, or the callback that calculate the dynamic year depending day and month on demand.
 * The optional `year range(s)` (start- and/or end date) where the holiday is valid.
 * Optional `conditions` for moving the holiday if the condition matches.
-* Optional `regions` where the holiday is only valid for. 
+* Optional `regions` where the holiday is only valid for.
+* Information if the holiday is a work free holiday or not
 
 Now if you have all holiday information the holidays can be defined by replacing the `TODO 2` comment
 
@@ -308,6 +325,11 @@ Other currently known callbacks are:
 * `\Niirrty\Holiday\Callbacks\ModifyDateCallback`: If a date should be calculated by a DateTime modification
   (modify() method format), it can be defined by this dynamic date callback.
 * `\Niirrty\Holiday\Callbacks\EasterDateCallback`: Calculates the christian easter sunday
+* `\Niirrty\Holiday\Callbacks\NamedDateCallback`: If a date should be build by a named date time string. For example
+  `'last monday of january'` will result in `'last monday of january ' . $year`
+* `\Niirrty\Holiday\Callbacks\AdventDateCallback`: For dates, depending to the dynamic christian advent days calculation
+* `\Niirrty\Holiday\Callbacks\EasterDateCallback`: Calculates the 4 season start dates spring, summer, autumn and winter
+  for north or south hemispheres.
 
 But its really simple to implement your own:
 
@@ -320,6 +342,7 @@ namespace My\Callbacks;
 
 use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
 use Niirrty\Date\DateTime;
+
 
 class MyDynamicDateCallback implements IDynamicDateCallback
 {
@@ -370,3 +393,10 @@ If `ValidToYear` is before `ValidFromYear` it means the holiday ends to be valid
 valid state at year `ValidFromYear`
 
 If there are more ranges you must define the holiday multiple times but ATTENTION: NEVER USE THE SAME IDENTIFIER!
+
+### Rest day holidays
+
+Holidays are initially all "rest day" (work-free) holidays. If a "no rest day" Holiday should be defined you can do it
+by add `->setIsRestDay( false )` to the definition declaration.
+
+The End…

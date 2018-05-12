@@ -88,6 +88,12 @@ class HolidayTest extends TestCase
       $this->assertFalse( $this->holiday->hasMovedFromDate() );
 
    }
+   public function testGetIsRestDay()
+   {
+
+      $this->assertSame( true, $this->holiday->getIsRestDay() );
+
+   }
 
    public function testSetName()
    {
@@ -121,6 +127,12 @@ class HolidayTest extends TestCase
    {
 
       $this->assertSame( 'fr', $this->holiday->setLanguage( 'fr' )->getLanguage() );
+
+   }
+   public function testSetIsRestDay()
+   {
+
+      $this->assertSame( false, $this->holiday->setIsRestDay( false )->getIsRestDay() );
 
    }
 

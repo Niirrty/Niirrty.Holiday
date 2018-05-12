@@ -35,6 +35,7 @@ class HolidayCollectionTest extends TestCase
          ( new Holiday( 'Befreiung' ) )
                        ->setName( 'Tag der Befreiung' )
                        ->setDate( new DateTime( '2018-06-24' ) )
+                       ->setIsRestDay( false )
       )->setRegions(
          [ 1 => 'Foo', 2 => 'Bar', 3 => 'Baz' ]
       );
@@ -244,7 +245,65 @@ class HolidayCollectionTest extends TestCase
    public function test_startsAt()
    {
 
-      $this->assertSame( 1, $this->collection->startsAt( 5 )->count() );
+      $this->assertSame( 1, $this->collection->startsAt( 0, 0 )->count() );
+
+   }
+   public function test_byRegionId()
+   {
+
+      $this->assertSame( 2, $this->collection->byRegionId( 1 )->count() );
+      $this->assertSame( 1, $this->collection->byRegionId( 2 )->count() );
+
+   }
+   public function test_byRegionIds()
+   {
+
+      $this->collection->add(
+         ( new Holiday( 'Foo Bar' ) )->setValidRegions( [ 3 ] )
+                                     ->setName( 'Foo-Barium' )
+                                     ->setDate( new DateTime( '2018-07-21' ) ) );
+
+      $this->assertSame( 2, $this->collection->byRegionIds( [ 1 ] )->count() );
+      $this->assertSame( 2, $this->collection->byRegionIds( [ 2, 3 ] )->count() );
+      $this->assertSame( 2, $this->collection->byRegionIds( [ 3 ] )->count() );
+
+
+   }
+   public function test_byRegionName()
+   {
+
+      $this->assertSame( 2, $this->collection->byRegionName( 'Foo' )->count() );
+      $this->assertSame( 1, $this->collection->byRegionName( 'Bar' )->count() );
+      $this->assertSame( 0, $this->collection->byRegionName( 'Blub' )->count() );
+
+   }
+   public function test_byRegionNames()
+   {
+
+      $this->collection->add(
+         ( new Holiday( 'Foo Bar' ) )->setValidRegions( [ 3 ] )
+                                     ->setName( 'Foo-Barium' )
+                                     ->setDate( new DateTime( '2018-07-21' ) ) );
+
+      $this->assertSame( 2, $this->collection->byRegionNames( [ 'Foo' ] )->count() );
+      $this->assertSame( 2, $this->collection->byRegionNames( [ 'Bar', 'Baz' ] )->count() );
+      $this->assertSame( 2, $this->collection->byRegionNames( [ 'Baz' ] )->count() );
+      $this->assertSame( 1, $this->collection->byRegionNames( [ 'Blub' ] )->count() );
+
+
+   }
+   public function test_restDays()
+   {
+
+      $this->assertSame( 1, $this->collection->restDays()->count() );
+
+
+   }
+   public function test_noRestDays()
+   {
+
+      $this->assertSame( 1, $this->collection->noRestDays()->count() );
+
 
    }
    #public function test_Create() { $this->assertSame( '', '' ); }
