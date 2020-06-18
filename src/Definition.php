@@ -66,23 +66,23 @@ class Definition
    protected $_dynamicDate;
 
    /**
-    * The name of the callback, used to calculate an specific base date that will be used to build
+    * The name of a global callback, used to calculate an specific base date that will be used to build
     * the final holiday date in combination with the difference days value. The callback function
-    * must be registered by defined name.
+    * must be registered globally by defined name.
     *
     * @type string|null
     */
    protected $_baseCallbackName;
 
    /**
-    * The country home language holiday name.
+    * The country home language holiday name. If there are more than 1 Languages simple select one
     *
     * @type string
     */
    protected $_name;
 
    /**
-    * Optional name translations. Keys are the 2 char country code like 'de', 'fr', 'cz'
+    * Optional name translations. Keys are the 2 char country codes like 'de', 'fr', 'cz'
     *
     * @type array
     */
@@ -96,14 +96,14 @@ class Definition
    protected $_description;
 
    /**
-    * The year where the holiday validity starts. NULL means no restriction.
+    * The year where the holiday starts to be valid. NULL means no restriction.
     *
     * @type int|null
     */
    protected $_validFromYear;
 
    /**
-    * The year where the holiday validity ends. NULL means no restriction.
+    * The year where the holiday ends to be valid. NULL means no restriction.
     *
     * @type int|null
     */
@@ -120,7 +120,7 @@ class Definition
    protected $_moveConditions;
 
    /**
-    * Set it to TRUE if you wand to handle the changes of all matching conditions. With default FALSE, only the first
+    * Set it to TRUE if you want handle the changes of all matching move conditions. With default FALSE, only the first
     * matching condition moves the date.
     *
     * @type bool

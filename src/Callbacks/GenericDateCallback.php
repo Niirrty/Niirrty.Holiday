@@ -19,7 +19,7 @@ use Niirrty\Date\DateTime;
 
 
 /**
- * Simple generic callback.
+ * Simple generic method to calculate a date by a callback function/method.
  *
  * @package Niirrty\Holiday\Callbacks
  */
@@ -28,6 +28,9 @@ class GenericDateCallback implements IDynamicDateCallback
 
 
    /**
+    * The callback must accept a single parameter (the year, required to calculate the date) and must
+    * return the calculated \DateTime value.
+    *
     * @type callable
     */
    protected $_callback;

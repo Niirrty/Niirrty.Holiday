@@ -82,8 +82,7 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
                    'it' => 'Capodanno',
                    'es' => 'Año Nuevo',
                    'pt' => 'Mãe de Deus',
-                   'cz' => 'Nový rok',
-                   'jp' => '元日'
+                   'cz' => 'Nový rok'
                 ] ),
 
       // 01-06 Heilige drei Könige - Epiphany (Holy 3 kings)
@@ -97,9 +96,7 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
                    'fr' => 'Épiphanie',
                    'it' => 'Epifania',
                    'es' => 'Epifanía',
-                   'pt' => 'Epifania',
-                   'cz' => 'Epiphany',
-                   'jp' => 'エピファニー'
+                   'pt' => 'Epifania'
                 ] ),
 
       // Weiberfastnacht (Easter sunday - 52 days)
@@ -152,8 +149,7 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
                    'it' => 'Carnevale',
                    'es' => 'Carnaval',
                    'pt' => 'Carnaval',
-                   'cz' => 'Karneval',
-                   'jp' => 'カーニバル'
+                   'cz' => 'Karneval'
                 ] )
                 ->setIsRestDay( false ),
 
