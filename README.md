@@ -12,7 +12,7 @@ Its realy easy to define holidays for other countries than initially supported. 
 This is a package available via composer:
 
 ```bash
-composer require niirrty/niirrty.holiday ^1.1 
+composer require niirrty/niirrty.holiday ^1.3 
 ```
 
 or inside the `require` area of the `composer.json`:
@@ -21,7 +21,7 @@ or inside the `require` area of the `composer.json`:
 {
    "require": {
                 "php": ">=7.1",
-                "niirrty/niirrty.holiday": "^1.1"
+                "niirrty/niirrty.holiday": "^1.3"
               }
 }
 ```

@@ -1,17 +1,20 @@
 <?php
 /**
  * @author         Ni Irrty <niirrty+code@gmail.com>
- * @copyright  (c) 2017, Ni Irrty
+ * @copyright      © 2017-2020, Ni Irrty
  * @license        MIT
  * @since          2018-05-01
- * @version        1.1.0
+ * @version        1.3.0
  */
 
 
-declare( strict_types = 1 );
+declare( strict_types=1 );
 
 
 namespace Niirrty\Holiday\Callbacks;
+
+
+use DateTime;
 
 
 /**
@@ -23,13 +26,14 @@ interface IDynamicDateCallback
 {
 
 
-   /**
-    * Calculate the holiday datetime for defined year and returns it.
-    *
-    * @param  int $year
-    * @return \DateTime
-    */
-   public function calculate( int $year ) : \DateTime;
+    /**
+     * Calculate the holiday datetime for defined year and returns it.
+     *
+     * @param int $year
+     *
+     * @return DateTime
+     */
+    public function calculate( int $year ): DateTime;
 
 
 }

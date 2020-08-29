@@ -13,7 +13,7 @@ Für mehr Informationen kann ein Blick hier nicht schaden: [Landesabhaengige Fei
 Dieses Packet kann einfach über composer direkt installiert werden:
 
 ```bash
-composer require niirrty/niirrty.holiday ^1.1 
+composer require niirrty/niirrty.holiday ^1.3 
 ```
 
 oder im `require` Bereich der `composer.json`:
@@ -22,7 +22,7 @@ oder im `require` Bereich der `composer.json`:
 {
    "require": {
                 "php": ">=7.1",
-                "niirrty/niirrty.holiday": "^1.1"
+                "niirrty/niirrty.holiday": "^1.3"
               }
 }
 ```
