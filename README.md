@@ -1,11 +1,11 @@
 # Niirrty.Holiday
 
-A extendable international holyday library.
+A extendable international holiday library.
 
 [Dieses Dokument in Deutscher Sprache anzeigen](./README.de.md)
 
 Its realy easy to define holidays for other countries than initially supported. For mor information see
-[Define country depending holidays](#define-country-depending-holidays) 
+[Define country depending on holidays](#define-country-depending-holidays) 
 
 ## Installation
 
@@ -20,7 +20,7 @@ or inside the `require` area of the `composer.json`:
 ```json
 {
    "require": {
-                "php": ">=7.1",
+                "php": ">=8.1",
                 "niirrty/niirrty.holiday": "^1.3"
               }
 }
