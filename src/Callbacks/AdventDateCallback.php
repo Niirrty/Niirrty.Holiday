@@ -15,16 +15,13 @@ namespace Niirrty\Holiday\Callbacks;
 
 
 use Niirrty\Date\DateTime;
-use function abs;
-use function max;
-use function min;
 
 
 /**
  * To calculate an advent related holiday.
  *
- * First, you can get with it the date of a advent holiday (1.-4. Advent)
- * or you can calculate a holiday that depends to it, moved by a day offset.
+ * First, you can get with it the date of an advent holiday (1.-4. Advent)
+ * or you can calculate a holiday that depends on it, moved by a day offset.
  *
  * @package Niirrty\Holiday\Callbacks
  */
@@ -33,9 +30,9 @@ class AdventDateCallback implements IDynamicDateCallback
 
 
     /** @type int */
-    protected $_adventDay;
+    protected int $_adventDay;
 
-    protected $_modifyDays;
+    protected int $_modifyDays;
 
 
     /**
@@ -48,7 +45,7 @@ class AdventDateCallback implements IDynamicDateCallback
     public function __construct( int $adventDayNumber, int $modifyDays = 0 )
     {
 
-        $this->_adventDay = min( 6, max( 1, $adventDayNumber ) );
+        $this->_adventDay = \intval( \min( 6, \max( 1, $adventDayNumber ) ) );
         $this->_modifyDays = $modifyDays;
 
     }
@@ -60,6 +57,7 @@ class AdventDateCallback implements IDynamicDateCallback
      * @param int $year
      *
      * @return \DateTime
+     * @throws \Throwable
      */
     public function calculate( int $year ): \DateTime
     {
@@ -71,7 +69,7 @@ class AdventDateCallback implements IDynamicDateCallback
 
         if ( 0 !== $this->_modifyDays )
         {
-            $refDate->modify( ( $this->_modifyDays > 0 ? '+' : '-' ) . abs( $this->_modifyDays ) . ' days' );
+            $refDate->modify( ( $this->_modifyDays > 0 ? '+' : '-' ) . \abs( $this->_modifyDays ) . ' days' );
         }
 
         return $refDate;

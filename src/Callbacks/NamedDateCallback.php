@@ -14,12 +14,8 @@ declare( strict_types=1 );
 namespace Niirrty\Holiday\Callbacks;
 
 
-use Niirrty\Date\DateTime;
-use function rtrim;
-
-
 /**
- * If a date should be build by a named date time string.
+ * If a date should be built by a named date time string.
  *
  * For example 'last monday of january ' . $year
  *
@@ -32,18 +28,18 @@ class NamedDateCallback implements IDynamicDateCallback
 
 
     /**
-     * The base holiday month.
+     * The named date string prefix (year is pointed after it).
      *
-     * @type int
+     * @type string|null
      */
-    protected $_prefix;
+    protected ?string $_prefix;
 
     /**
-     * The base holiday day of month
+     * The named date string appendix (year is pointed before it).
      *
-     * @type int
+     * @type string|null
      */
-    protected $_appendix;
+    protected ?string $_appendix;
 
 
     /**
@@ -55,8 +51,8 @@ class NamedDateCallback implements IDynamicDateCallback
     public function __construct( ?string $prefix, ?string $appendix = null )
     {
 
-        $this->_prefix = ( null !== $prefix ) ? ( rtrim( $prefix, " \t\r\n" ) . ' ' ) : $prefix;
-        $this->_appendix = ( null !== $appendix ) ? ( rtrim( $appendix, " \t\r\n" ) . ' ' ) : $appendix;
+        $this->_prefix = ( null !== $prefix ) ? ( \rtrim( $prefix, " \t\r\n" ) . ' ' ) : $prefix;
+        $this->_appendix = ( null !== $appendix ) ? ( \rtrim( $appendix, " \t\r\n" ) . ' ' ) : $appendix;
 
     }
 
@@ -67,15 +63,16 @@ class NamedDateCallback implements IDynamicDateCallback
      * @param int $year
      *
      * @return \DateTime
+     * @throws \Exception
      */
     public function calculate( int $year ): \DateTime
     {
 
-        $dateString = ( !empty( $this->_prefix ) ? $this->_prefix : '' )
-                      . $year
-                      . ( !empty( $this->_appendix ) ? $this->_appendix : '' );
+        $dateString = ( ! empty( $this->_prefix ) ? $this->_prefix : '' )
+                    . $year
+                    . ( ! empty( $this->_appendix ) ? $this->_appendix : '' );
 
-        return new DateTime( $dateString );
+        return new \DateTime( $dateString );
 
     }
 

@@ -21,6 +21,9 @@ class EasterDateCallback implements IDynamicDateCallback
 {
 
 
+    /**
+     * @throws \Throwable
+     */
     public function calculate( int $year ): \DateTime
     {
 

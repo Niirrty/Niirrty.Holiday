@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.3",
     "niirrty/niirrty.io": "^0.6",
     "niirrty/niirrty.date": "^0.6",
     "psr/log": "^1.0"

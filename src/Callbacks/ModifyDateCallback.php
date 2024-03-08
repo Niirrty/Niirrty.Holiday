@@ -28,42 +28,13 @@ class ModifyDateCallback implements IDynamicDateCallback
 
 
     /**
-     * The base holiday month.
-     *
-     * @type int
-     */
-    protected $_month;
-
-    /**
-     * The base holiday day of month
-     *
-     * @type int
-     */
-    protected $_day;
-
-    /**
-     * The modifier string. e.g.: 'last monday'
-     *
-     * @type string
-     */
-    protected $_modifier;
-
-
-    /**
      * ModifyDateCallback constructor.
      *
      * @param int    $month    The base holiday month.
      * @param int    $day      The base holiday day of month
      * @param string $modifier The modifier string. e.g.: 'last monday'
      */
-    public function __construct( int $month, int $day, string $modifier )
-    {
-
-        $this->_month = $month;
-        $this->_day = $day;
-        $this->_modifier = $modifier;
-
-    }
+    public function __construct( protected int $month, protected int $day, protected string $modifier ) { }
 
 
     /**
@@ -76,7 +47,7 @@ class ModifyDateCallback implements IDynamicDateCallback
     public function calculate( int $year ): \DateTime
     {
 
-        return DateTime::Create( $year, $this->_month, $this->_day )->modify( $this->_modifier );
+        return DateTime::Create( $year, $this->month, $this->day )->modify( $this->modifier );
 
     }
 

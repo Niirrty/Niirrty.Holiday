@@ -15,11 +15,30 @@ namespace Niirrty\Holiday\Callbacks;
 
 
 use DateTime;
-use function call_user_func;
 
 
 /**
  * Simple generic method to calculate a date by a callback function/method.
+ *
+ * Use it like the following example:
+ *
+ * <code>
+ * $cb = new GenericDateCallback(
+ *     function ( int $year ) : \DateTime
+ *     {
+ *         if ( 0 === $year % 2 )
+ *         {
+ *             return new DateTime( $year . '-12-07' );
+ *         }
+ *         return new DateTime( $year . '-12-08' );
+ *     }
+ * );
+ * $cb->calculate( 1969 )
+ * </code>
+ *
+ * The callback function checks if the year value is a modulo of 2 (year is smoothly divisible by 2).
+ *
+ * If so, YEAR-12-07 is returned. Otherwise, YEAR-12-08 is returned.
  *
  * @package Niirrty\Holiday\Callbacks
  */
@@ -59,7 +78,7 @@ class GenericDateCallback implements IDynamicDateCallback
     public function calculate( int $year ): DateTime
     {
 
-        return call_user_func( $this->_callback, $year );
+        return \call_user_func( $this->_callback, $year );
 
     }
 
