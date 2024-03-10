@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.6.3
+## Version 0.6.3 (2024-03-10)
 
 * Add changelog
 * Update to Niirrty Libs v0.6.*
