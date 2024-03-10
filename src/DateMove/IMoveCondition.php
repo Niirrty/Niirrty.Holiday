@@ -11,9 +11,9 @@
 namespace Niirrty\Holiday\DateMove;
 
 
-use DateTime;
-use DateTimeInterface;
-use Niirrty\IValidStatus;
+use \DateTime;
+use \DateTimeInterface;
+use \Niirrty\IValidStatus;
 
 
 /**
@@ -24,7 +24,7 @@ interface IMoveCondition extends IValidStatus
 
 
     /**
-     * Gets the Condition callback. It must accept a single parameter of type {@see \DateTimeInterface},
+     * Gets the Condition callback. It must accept a single parameter of type {@see DateTimeInterface},
      * and must return boolean (true if the condition matches the date, false otherwise)
      *
      * @return callable|null

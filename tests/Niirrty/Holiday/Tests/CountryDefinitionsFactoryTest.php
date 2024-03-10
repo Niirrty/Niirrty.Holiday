@@ -585,11 +585,11 @@ class CountryDefinitionsFactoryTest extends TestCase
          1977 => [
             Identifiers::NEW_YEAR => [ 'm' => 1, 'd' => 1, 'r' => [ -1 ] ],
             Identifiers::EPIPHANY => [ 'm' => 1, 'd' => 6, 'r' => [ -1 ] ],
-            Identifiers::EASTER_MONDAY => [ 'm' => 4, 'd' => 11, 'r' => [ -1 ] ],
+            Identifiers::EASTER_MONDAY => [ 'm' => 4, 'd' => 10, 'r' => [ -1 ] ],
             'Day of the liberation of Italy' => [ 'm' => 4, 'd' => 24, 'r' => [ -1 ] ],
             Identifiers::LABOR_DAY => [ 'm' => 5, 'd' => 1, 'r' => [ -1 ] ],
-            Identifiers::ASCENSION => [ 'm' => 5, 'd' => 19, 'r' => [ -1 ] ], //valid …-1977
-            Identifiers::WHIT_MONDAY => [ 'm' => 5, 'd' => 30, 'r' => [ 15 ] ],
+            Identifiers::ASCENSION => [ 'm' => 5, 'd' => 18, 'r' => [ -1 ] ], //valid …-1977
+            Identifiers::WHIT_MONDAY => [ 'm' => 5, 'd' => 29, 'r' => [ 15 ] ],
             Identifiers::NATIONAL_DAY => [ 'm' => 6, 'd' => 2, 'r' => [ -1 ] ],
             Identifiers::ASSUMPTION => [ 'm' => 8, 'd' => 15, 'r' => [ -1 ] ],
             Identifiers::ALL_SAINTS => [ 'm' => 11, 'd' => 1, 'r' => [ -1 ] ],

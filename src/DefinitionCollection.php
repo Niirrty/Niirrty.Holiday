@@ -21,11 +21,7 @@ use IteratorAggregate;
 use Niirrty\Holiday\Callbacks\EasterDateCallback;
 use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
 use Psr\Log\LoggerInterface;
-use function array_keys;
-use function array_search;
-use function count;
-use function is_int;
-use function is_null;
+use ReturnTypeWillChange;
 
 
 /**
@@ -43,21 +39,21 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @type string
      */
-    private $_countryName;
+    private string $_countryName;
 
     /**
      * The country ISO 2 char ID (e.g. 'de' or 'fr')
      *
      * @type string
      */
-    private $_countryId;
+    private string $_countryId;
 
     /**
      * All holiday definition records.
      *
      * @type Definition[]
      */
-    private $_data;
+    private array $_data;
 
     /**
      * All global callback functions. Each must accept an single parameter $year and must return an
@@ -67,7 +63,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @type array
      */
-    private $_globalCallbacks;
+    private array $_globalCallbacks;
 
     /**
      * A numeric indicated array that defines the names of all regions for current country.
@@ -76,9 +72,9 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @type array
      */
-    private $_regions;
+    private array $_regions;
 
-    private $_logger;
+    private ?LoggerInterface $_logger;
 
     // </editor-fold>
 
@@ -118,7 +114,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @link  http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return ArrayIterator An instance of an object implementing <b>Iterator</b> or <b>Traversable</b>
      */
-    public function getIterator()
+    #[ReturnTypeWillChange] public function getIterator() : ArrayIterator
     {
 
         return new ArrayIterator( $this->_data );
@@ -139,7 +135,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *                 was returned.
      * @link  http://php.net/manual/en/arrayaccess.offsetexists.php
      */
-    public function offsetExists( $offset )
+    public function offsetExists( $offset ) : bool
     {
 
         return isset( $this->_data[ $offset ] );
@@ -154,7 +150,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @return Definition
      * @link   http://php.net/manual/en/arrayaccess.offsetget.php
      */
-    public function offsetGet( $offset )
+    public function offsetGet( $offset ) : Definition
     {
 
         return $this->_data[ $offset ];
@@ -170,7 +166,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @throws Exception
      * @link   http://php.net/manual/en/arrayaccess.offsetset.php
      */
-    public function offsetSet( $offset, $value )
+    public function offsetSet( $offset, $value ) : void
     {
 
         if ( !( $value instanceof Definition ) )
@@ -178,7 +174,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
             throw new Exception( 'Can not set an holiday definition if it is not an Definition instance!' );
         }
 
-        if ( is_null( $offset ) )
+        if ( \is_null( $offset ) )
         {
             $this->_data[ $value->getIdentifier() ] = $value;
         }
@@ -196,7 +192,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @link  http://php.net/manual/en/arrayaccess.offsetunset.php
      */
-    public function offsetUnset( $offset )
+    public function offsetUnset( $offset ) : void
     {
 
         unset( $this->_data[ $offset ] );
@@ -214,10 +210,10 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @return int The custom count as an integer. The return value is cast to an integer.
      * @link   http://php.net/manual/en/countable.count.php
      */
-    public function count()
+    public function count() : int
     {
 
-        return count( $this->_data );
+        return \count( $this->_data );
 
     }
 
@@ -272,7 +268,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     public function getGlobalCallbackNames(): array
     {
 
-        return array_keys( $this->_globalCallbacks );
+        return \array_keys( $this->_globalCallbacks );
 
     }
 
@@ -353,14 +349,14 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
 
         $names = [];
 
-        if ( count( $regionIndexes ) < 1 || $regionIndexes[ 0 ] === -1 )
+        if ( \count( $regionIndexes ) < 1 || $regionIndexes[ 0 ] === -1 )
         {
             return $this->_regions;
         }
 
         foreach ( $regionIndexes as $regionIndex )
         {
-            if ( !isset( $this->_regions[ $regionIndex ] ) )
+            if ( ! isset( $this->_regions[ $regionIndex ] ) )
             {
                 continue;
             }
@@ -374,19 +370,19 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Gets if an region with the defined index or name exists.
      *
-     * @param string|int $region The name or index of the required region
+     * @param int|string $region The name or index of the required region
      *
      * @return bool
      */
-    public function hasRegion( $region ): bool
+    public function hasRegion( int|string $region ): bool
     {
 
-        if ( is_int( $region ) )
+        if ( \is_int( $region ) )
         {
             return isset( $this->_regions[ $region ] );
         }
 
-        return ( false !== array_search( $region, $this->_regions ) );
+        return ( \in_array( $region, $this->_regions ) );
 
     }
 
@@ -397,10 +393,10 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @return int|FALSE
      */
-    public function indexOfRegion( string $region )
+    public function indexOfRegion( string $region ) : false|int
     {
 
-        return array_search( $region, $this->_regions );
+        return \array_search( $region, $this->_regions );
 
     }
 
@@ -412,7 +408,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     public function hasRegions(): bool
     {
 
-        return count( $this->_regions ) > 0;
+        return \count( $this->_regions ) > 0;
 
     }
 

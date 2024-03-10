@@ -30,7 +30,7 @@ class DefinitionTest extends TestCase
    /** @type \Niirrty\Holiday\Definition */
    private $definitionDynamic;
 
-   public function setUp()
+   public function setUp() : void
    {
 
       $this->definitionStatic = new Definition( 'My special holiday' );

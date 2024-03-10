@@ -24,7 +24,7 @@ class HolidayCollectionTest extends TestCase
    /** @type \Niirrty\Holiday\HolidayCollection */
    private $collection;
 
-   public function setUp()
+   public function setUp() : void
    {
 
       $this->collection = new HolidayCollection( 2018, 'Ende der Welt', 'ew' );

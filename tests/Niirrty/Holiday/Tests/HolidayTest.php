@@ -24,7 +24,7 @@ class HolidayTest extends TestCase
     */
    private $holiday;
 
-   public function setUp()
+   public function setUp() : void
    {
 
       $this->holiday = new Holiday( 'Foo-Day' );

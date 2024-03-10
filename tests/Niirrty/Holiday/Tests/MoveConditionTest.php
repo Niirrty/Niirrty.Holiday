@@ -24,7 +24,7 @@ class MoveConditionTest extends TestCase
    private $condition;
    private $acceptedRegions = [ 1, 3, 4 ];
 
-   public function setUp()
+   public function setUp() : void
    {
 
       $this->callback = function ( \DateTime $date ) : bool

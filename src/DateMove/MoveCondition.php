@@ -14,12 +14,8 @@ declare( strict_types=1 );
 namespace Niirrty\Holiday\DateMove;
 
 
-use DateTime;
-use DateTimeInterface;
-use function abs;
-use function call_user_func;
-use function in_array;
-use function is_callable;
+use \DateTime;
+use \DateTimeInterface;
 
 
 /**
@@ -45,7 +41,7 @@ class MoveCondition implements IMoveCondition
      *
      * @type int
      */
-    protected $_moveDays;
+    protected int $_moveDays;
 
     /**
      * The indexes of all country regions where this MoveCondition can be used for.
@@ -54,13 +50,22 @@ class MoveCondition implements IMoveCondition
      *
      * @type array
      */
-    protected        $_acceptedRegions = [ -1 ];
+    protected array $_acceptedRegions = [ -1 ];
 
-    protected static $isSaturday       = null;
+    /**
+     * @var callable
+     */
+    protected static $isSaturday = null;
 
-    protected static $isSunday         = null;
+    /**
+     * @var callable
+     */
+    protected static $isSunday   = null;
 
-    protected static $isMonday         = null;
+    /**
+     * @var callable
+     */
+    protected static $isMonday   = null;
 
     // </editor-fold>
 
@@ -74,7 +79,7 @@ class MoveCondition implements IMoveCondition
     {
 
         $this->_conditionCallback = null;
-        $this->_moveDays = 0;
+        $this->_moveDays          = 0;
 
         self::InitCallbacks();
 
@@ -199,7 +204,7 @@ class MoveCondition implements IMoveCondition
     public final function matches( DateTimeInterface $date, array $regions = [] ): bool
     {
 
-        if ( !is_callable( $this->_conditionCallback ) )
+        if ( ! \is_callable( $this->_conditionCallback ) )
         {
             return false;
         }
@@ -209,24 +214,24 @@ class MoveCondition implements IMoveCondition
             $regions = [ -1 ];
         }
 
-        if ( !in_array( -1, $this->_acceptedRegions ) && !in_array( -1, $regions ) )
+        if ( ! \in_array( -1, $this->_acceptedRegions ) && ! \in_array( -1, $regions ) )
         {
             $isValid = false;
             foreach ( $regions as $region )
             {
-                if ( in_array( $region, $this->_acceptedRegions ) )
+                if ( \in_array( $region, $this->_acceptedRegions ) )
                 {
                     $isValid = true;
                     break;
                 }
             }
-            if ( !$isValid )
+            if ( ! $isValid )
             {
                 return false;
             }
         }
 
-        return call_user_func( $this->_conditionCallback, $date );
+        return \call_user_func( $this->_conditionCallback, $date );
 
     }
 
@@ -249,7 +254,7 @@ class MoveCondition implements IMoveCondition
             return $clone;
         }
 
-        $absDays = abs( $this->_moveDays );
+        $absDays = \abs( $this->_moveDays );
         $prefix = $this->_moveDays < 0 ? '-' : '+';
         $daysText = $absDays > 1 ? 'days' : 'day';
 
@@ -263,7 +268,7 @@ class MoveCondition implements IMoveCondition
     public final function isValid(): bool
     {
 
-        return 0 !== $this->_moveDays && is_callable( $this->_conditionCallback );
+        return 0 !== $this->_moveDays && \is_callable( $this->_conditionCallback );
 
     }
 
@@ -328,7 +333,7 @@ class MoveCondition implements IMoveCondition
 
     }
 
-    protected static function InitCallbacks()
+    protected static function InitCallbacks() : void
     {
 
         if ( null !== self::$isSunday )

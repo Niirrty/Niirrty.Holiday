@@ -11,3 +11,4 @@
 * Ensure that both properties of `Niirrty\Holiday\Callbacks\AdventDateCallback` are of type `int` and add type to property definition.
 * Replace imports of PHP core functions by absolute naming inside namespace `Niirrty\Holiday\Callbacks`.
 * Replace specific class properties to properties, defined by constructor, inside `Niirrty\Holiday\Callbacks\ModifyDateCallback`.
+* Add International Woman's Day holiday for german regions Berlin (since 2019) and Mecklenburg-Vorpommern MVP (since 2023)

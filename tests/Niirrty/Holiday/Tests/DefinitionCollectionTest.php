@@ -25,7 +25,7 @@ class DefinitionCollectionTest extends TestCase
    /** @type \Niirrty\Holiday\DefinitionCollection */
    private $collection;
 
-   public function setUp()
+   public function setUp() : void
    {
 
       $this->collection = new DefinitionCollection( 'Deutschland', 'de' );

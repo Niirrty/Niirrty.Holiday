@@ -15,8 +15,6 @@ namespace Niirrty\Holiday;
 
 
 use DateTime;
-use function count;
-use function in_array;
 
 
 class Holiday
@@ -32,28 +30,28 @@ class Holiday
      *
      * @type string
      */
-    protected $_identifier;
+    protected string $_identifier;
 
     /**
      * The holiday name.
      *
      * @type string
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * An optional holiday description.
      *
      * @type string|null
      */
-    protected $_description;
+    protected ?string $_description;
 
     /**
      * The holiday date
      *
      * @type \Niirrty\Date\DateTime|null
      */
-    protected $_date;
+    protected ?\Niirrty\Date\DateTime $_date;
 
     /**
      * The indexes of all country depending regions where the holiday is valid or [ -1 ] if valid for all regions or if
@@ -61,28 +59,28 @@ class Holiday
      *
      * @type array
      */
-    protected $_regions;
+    protected array $_regions;
 
     /**
      * The 2 char ISO language ID of the holiday name.
      *
      * @type string|null
      */
-    protected $_languageId;
+    protected ?string $_languageId;
 
     /**
      * The original holiday date before any move conditions.
      *
      * @type \Niirrty\Date\DateTime|null
      */
-    protected $_movedFromDate;
+    protected ?\Niirrty\Date\DateTime $_movedFromDate;
 
     /**
      * Define if the holiday is a rest day (work free day)
      *
      * @type bool
      */
-    protected $_isRestDay;
+    protected bool $_isRestDay;
 
     // </editor-fold>
 
@@ -251,7 +249,7 @@ class Holiday
     /**
      * Sets an optional holiday description.
      *
-     * @param string $description
+     * @param string|null $description
      *
      * @return Holiday
      */
@@ -267,14 +265,22 @@ class Holiday
     /**
      * Sets the holiday date.
      *
-     * @param DateTime $date
+     * @param \DateTime|\Niirrty\Date\DateTime $date
      *
      * @return Holiday
+     * @throws \Throwable
      */
-    public function setDate( DateTime $date ): Holiday
+    public function setDate( \DateTime|\Niirrty\Date\DateTime $date ): Holiday
     {
 
-        $this->_date = $date;
+        if ( $date instanceof \Niirrty\Date\DateTime )
+        {
+            $this->_date = $date;
+        }
+        else
+        {
+            $this->_date = \Niirrty\Date\DateTime::FromDateTime( $date );
+        }
 
         return $this;
 
@@ -292,7 +298,7 @@ class Holiday
 
         $this->_regions = $regions;
 
-        if ( in_array( -1, $this->_regions, true ) || 0 === count( $this->_regions ) )
+        if ( \in_array( -1, $this->_regions, true ) || 0 === \count( $this->_regions ) )
         {
             $this->_regions = [ -1 ];
         }
@@ -320,14 +326,22 @@ class Holiday
     /**
      * Sets the original holiday date before any conditional movements.
      *
-     * @param DateTime|null $date
+     * @param \Niirrty\Date\DateTime|DateTime|null $date
      *
      * @return Holiday
+     * @throws \Throwable
      */
-    public function setMovedFromDate( ?DateTime $date ): Holiday
+    public function setMovedFromDate( \Niirrty\Date\DateTime|DateTime|null $date ): Holiday
     {
 
-        $this->_movedFromDate = $date;
+        if ( $date instanceof \Niirrty\Date\DateTime || null === $date )
+        {
+            $this->_movedFromDate = $date;
+        }
+        else
+        {
+            $this->_movedFromDate = \Niirrty\Date\DateTime::FromDateTime( $date );
+        }
 
         return $this;
 

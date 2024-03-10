@@ -19,13 +19,6 @@ use Niirrty\IO\FileFormatException;
 use Niirrty\IO\FileNotFoundException;
 use Niirrty\IO\Folder;
 use Throwable;
-use function array_unique;
-use function dirname;
-use function file_exists;
-use function rtrim;
-use function sort;
-use function strlen;
-use function strtolower;
 use const DIRECTORY_SEPARATOR;
 
 
@@ -56,23 +49,22 @@ class CountryDefinitionsFactory
 
         if ( empty( $definitionsFolder ) )
         {
-            $definitionsFolder = dirname( __DIR__ ) . '/data';
+            $definitionsFolder = \dirname( __DIR__ ) . '/data';
         }
         else
         {
-            $definitionsFolder = rtrim( $definitionsFolder, '/\\' );
+            $definitionsFolder = \rtrim( $definitionsFolder, '/\\' );
         }
 
         $file = $definitionsFolder . DIRECTORY_SEPARATOR . $countryId . '.php';
 
-        if ( !file_exists( $file ) )
+        if ( ! \file_exists( $file ) )
         {
             throw new FileNotFoundException( $file, 'Can not get holidays for country "' . $countryId . '".' );
         }
 
         try
         {
-            /** @noinspection PhpIncludeInspection */
             $collection = include $file;
         }
         catch ( Throwable $ex )
@@ -85,7 +77,7 @@ class CountryDefinitionsFactory
             );
         }
 
-        if ( !( $collection instanceof DefinitionCollection ) )
+        if ( ! ( $collection instanceof DefinitionCollection ) )
         {
             throw new FileFormatException(
                 $file,
@@ -107,18 +99,18 @@ class CountryDefinitionsFactory
 
         $countryIDs = [];
 
-        foreach ( Folder::ListFilteredFiles( dirname( __DIR__ ) . '/data', '~[a-z]{2}\.php$~',
-                                             false ) as $countryFile )
+        foreach ( Folder::ListFilteredFiles( \dirname( __DIR__ ) . '/data', '~[a-z]{2}\.php$~' )
+                  as $countryFile )
         {
-            $lowerCID = strtolower( File::GetNameWithoutExtension( $countryFile ) );
-            if ( 2 === strlen( $lowerCID ) )
+            $lowerCID = \strtolower( File::GetNameWithoutExtension( $countryFile ) );
+            if ( 2 === \strlen( $lowerCID ) )
             {
                 $countryIDs[] = $lowerCID;
             }
         }
 
-        $countryIDs = array_unique( $countryIDs );
-        sort( $countryIDs );
+        $countryIDs = \array_unique( $countryIDs );
+        \sort( $countryIDs );
 
         return $countryIDs;
 

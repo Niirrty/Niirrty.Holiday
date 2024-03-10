@@ -18,13 +18,6 @@ use Niirrty\Date\DateTime;
 use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
 use Niirrty\Holiday\DateMove\IMoveCondition;
 use Niirrty\Holiday\DateMove\MoveCondition;
-use function count;
-use function in_array;
-use function is_callable;
-use function max;
-use function min;
-use function range;
-use function trim;
 
 
 class Definition
@@ -37,7 +30,7 @@ class Definition
     /**
      * @type array
      */
-    private $_calculatedHolidays = [];
+    private array $_calculatedHolidays = [];
 
     // </editor-fold>
 
@@ -50,28 +43,28 @@ class Definition
      *
      * @type string
      */
-    protected $_identifier;
+    protected string $_identifier;
 
     /**
      * The holiday date month or NULL if the holiday is not static.
      *
      * @type int|null
      */
-    protected $_month;
+    protected ?int $_month;
 
     /**
      * The holiday date day of month or NULL if the holiday is not static.
      *
      * @type int|null
      */
-    protected $_day;
+    protected ?int $_day;
 
     /**
      * The callback for calculate a dynamic date.
      *
      * @type IDynamicDateCallback|null
      */
-    protected $_dynamicDate;
+    protected ?IDynamicDateCallback $_dynamicDate;
 
     /**
      * The name of a global callback, used to calculate an specific base date that will be used to build
@@ -80,42 +73,42 @@ class Definition
      *
      * @type string|null
      */
-    protected $_baseCallbackName;
+    protected ?string $_baseCallbackName;
 
     /**
      * The country home language holiday name. If there are more than 1 Languages simple select one
      *
      * @type string
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * Optional name translations. Keys are the 2 char country codes like 'de', 'fr', 'cz'
      *
      * @type array
      */
-    protected $_nameTranslations;
+    protected array $_nameTranslations;
 
     /**
      * An optional holiday description.
      *
      * @type string|null
      */
-    protected $_description;
+    protected ?string $_description;
 
     /**
      * The year where the holiday starts to be valid. NULL means no restriction.
      *
      * @type int|null
      */
-    protected $_validFromYear;
+    protected ?int $_validFromYear;
 
     /**
      * The year where the holiday ends to be valid. NULL means no restriction.
      *
      * @type int|null
      */
-    protected $_validToYear;
+    protected ?int $_validToYear;
 
     /**
      * 0-n conditions, used to move the current holiday declaration date by days, if the condition matches.
@@ -125,7 +118,7 @@ class Definition
      *
      * @type array
      */
-    protected $_moveConditions;
+    protected array $_moveConditions;
 
     /**
      * Set it to TRUE if you want handle the changes of all matching move conditions. With default FALSE, only the first
@@ -133,7 +126,7 @@ class Definition
      *
      * @type bool
      */
-    protected $_moveAllMatches;
+    protected bool $_moveAllMatches;
 
     /**
      * The optional callback to validate the current holiday definition date. If defined it must check the current
@@ -149,14 +142,14 @@ class Definition
      *
      * @type array
      */
-    protected $_regions;
+    protected array $_regions;
 
     /**
      * Define if the holiday is a rest day (work free day)
      *
      * @type bool
      */
-    protected $_isRestDay;
+    protected bool $_isRestDay;
 
     // </editor-fold>
 
@@ -417,7 +410,7 @@ class Definition
     public function hasValidationCallback(): bool
     {
 
-        return null !== $this->_validationCallback && is_callable( $this->_validationCallback );
+        return null !== $this->_validationCallback && \is_callable( $this->_validationCallback );
 
     }
 
@@ -532,8 +525,8 @@ class Definition
     public function setStaticDate( ?int $month = null, ?int $day = null ): Definition
     {
 
-        $this->_month = ( null !== $month ) ? min( 12, max( 1, $month ) ) : $month;
-        $this->_day = ( null !== $day ) ? min( 31, max( 1, $day ) ) : $day;
+        $this->_month = ( null !== $month ) ? \min( 12, \max( 1, $month ) ) : $month;
+        $this->_day = ( null !== $day ) ? \min( 31, \max( 1, $day ) ) : $day;
 
         if ( [] !== $this->_calculatedHolidays )
         {
@@ -556,7 +549,7 @@ class Definition
     {
 
         $this->_baseCallbackName = $callbackName;
-        if ( null !== $this->_baseCallbackName && '' === trim( $this->_baseCallbackName ) )
+        if ( null !== $this->_baseCallbackName && '' === \trim( $this->_baseCallbackName ) )
         {
             $this->_baseCallbackName = null;
         }
@@ -791,7 +784,7 @@ class Definition
 
         $this->_regions = $regions;
 
-        if ( in_array( -1, $this->_regions, true ) || 0 === count( $this->_regions ) )
+        if ( \in_array( -1, $this->_regions, true ) || 0 === \count( $this->_regions ) )
         {
             $this->_regions = [ -1 ];
         }
@@ -837,7 +830,7 @@ class Definition
             return $this;
         }
 
-        if ( !$this->isValidRegion( $regionIndex ) )
+        if ( ! $this->isValidRegion( $regionIndex ) )
         {
             $this->_regions[] = $regionIndex;
         }
@@ -857,9 +850,9 @@ class Definition
     public function addValidRegionsRange( int $regionStartIndex, int $regionEndIndex ): Definition
     {
 
-        $regionStartIndex = max( 0, $regionStartIndex );
+        $regionStartIndex = \max( 0, $regionStartIndex );
 
-        foreach ( range( $regionStartIndex, max( $regionStartIndex, $regionEndIndex ) ) as $regionIndex )
+        foreach ( \range( $regionStartIndex, \max( $regionStartIndex, $regionEndIndex ) ) as $regionIndex )
         {
             $this->addValidRegion( $regionIndex );
         }
@@ -942,7 +935,7 @@ class Definition
             return true;
         }
 
-        return ( -1 === $this->_regions[ 0 ] ) || in_array( $regionIndex, $this->_regions );
+        return ( -1 === $this->_regions[ 0 ] ) || \in_array( $regionIndex, $this->_regions );
 
     }
 
@@ -973,7 +966,7 @@ class Definition
 
 
         // Check if regions are defined
-        if ( 0 < count( $regions ) && !in_array( -1, $regions, true ) )
+        if ( 0 < \count( $regions ) && ! \in_array( -1, $regions, true ) )
         {
             // There are regions defined where at least one must match
             $isValid = false;
@@ -1032,7 +1025,7 @@ class Definition
         {
             $this->_calculatedHolidays[ $year ] = null;
 
-            return $this->_calculatedHolidays[ $year ];
+            return null;
         }
 
 
@@ -1059,7 +1052,7 @@ class Definition
                         {
                             $this->_calculatedHolidays[ $year ] = null;
 
-                            return $this->_calculatedHolidays[ $year ];
+                            return null;
                         }
                     }
                     else
@@ -1069,7 +1062,7 @@ class Definition
                         {
                             $this->_calculatedHolidays[ $year ] = null;
 
-                            return $this->_calculatedHolidays[ $year ];
+                            return null;
                         }
                     }
                 }
@@ -1079,7 +1072,7 @@ class Definition
                     {
                         $this->_calculatedHolidays[ $year ] = null;
 
-                        return $this->_calculatedHolidays[ $year ];
+                        return null;
                     }
                 }
             }
@@ -1089,7 +1082,7 @@ class Definition
                 {
                     $this->_calculatedHolidays[ $year ] = null;
 
-                    return $this->_calculatedHolidays[ $year ];
+                    return null;
                 }
             }
 

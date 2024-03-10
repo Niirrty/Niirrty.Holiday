@@ -71,7 +71,7 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
                            )
                            ->addRange(
 
-                           // 01-01 Neujahr - New Year
+                               // 01-01 Neujahr - New Year
                                Definition::CreateNewYear( 'Neujahr' )
                                          ->setNameTranslations( [
                                                                     'de' => 'Neujahr',
@@ -193,6 +193,45 @@ return DefinitionCollection::Create( 'Deutschland', 'de' )
                                                                     'jp' => '早春の気象',
                                                                 ] )
                                          ->setIsRestDay( false ),
+
+                               // 03-08 Internationaler Frauentag (Berlin) - International Womans day (Berlin)
+                               // !-> ARBEITSFREI! - WORK-FREE!
+                               Definition::Create( 'Woman\'s Day' )
+                                         ->setName( 'Internationaler Frauentag' )
+                                         ->setStaticDate( 3, 8 )
+                                         ->setValidFromYear( 2019 )
+                                         ->setValidRegions( [ 2 ] ) // "Berlin" only
+                                         ->setNameTranslations( [
+                                                                    'de' => 'Internationaler Frauentag',
+                                                                    'en' => 'International Women\'s Day',
+                                                                    'fr' => 'Journée internationale de la femme',
+                                                                    'it' => 'Giornata internazionale della donna',
+                                                                    'es' => 'Día Internacional de la Mujer',
+                                                                    'pt' => 'Dia Internacional da Mulher',
+                                                                    'cz' => 'Mezinárodní den žen',
+                                                                    'jp' => '国際婦人デー',
+                                                                ] )
+                                         ->setIsRestDay( true ),
+
+
+                               // 03-08 Internationaler Frauentag (MVP) - International Womans day (MVP)
+                               // !-> ARBEITSFREI! - WORK-FREE!
+                               Definition::Create( 'Woman\'s Day MVP' )
+                                         ->setName( 'Internationaler Frauentag' )
+                                         ->setStaticDate( 3, 8 )
+                                         ->setValidFromYear( 2023 )
+                                         ->setValidRegions( [ 7 ] ) // "Mecklenburg Vorpommern" only
+                                         ->setNameTranslations( [
+                                                                    'de' => 'Internationaler Frauentag',
+                                                                    'en' => 'International Women\'s Day',
+                                                                    'fr' => 'Journée internationale de la femme',
+                                                                    'it' => 'Giornata internazionale della donna',
+                                                                    'es' => 'Día Internacional de la Mujer',
+                                                                    'pt' => 'Dia Internacional da Mulher',
+                                                                    'cz' => 'Mezinárodní den žen',
+                                                                    'jp' => '国際婦人デー',
+                                                                ] )
+                                         ->setIsRestDay( true ),
 
                                // Tag und Nachtgleiche März - Equinox March
                                // !-> NICHT ARBEITSFREI! - NOT WORK-FREE!
