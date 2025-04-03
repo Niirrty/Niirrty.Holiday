@@ -29,8 +29,10 @@ class MoveConditionTest extends TestCase
 
       $this->callback = function ( \DateTime $date ) : bool
       {
+
          $weekDay = (int) $date->format( 'm' );
          return 4 === $weekDay;
+
       };
 
       $this->condition = MoveCondition::Create( 1, $this->callback )

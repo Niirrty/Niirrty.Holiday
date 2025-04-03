@@ -28,7 +28,7 @@ class DefinitionCollectionTest extends TestCase
    public function setUp() : void
    {
 
-      $this->collection = new DefinitionCollection( 'Deutschland', 'de' );
+      $this->collection = new DefinitionCollection( 'Deutschland', 'de', 'de' );
       $this->collection->add( Definition::Create( 'Neujahr' )->setStaticDate( 1, 1 ) );
       $this->collection->add( Definition::Create( 'Foo' )->setStaticDate( 1, 2 )->setValidToYear( 2017 ) );
 
@@ -54,7 +54,7 @@ class DefinitionCollectionTest extends TestCase
    {
 
       $this->assertSame( '2018-01-01',
-                         $this->collection[ 'Neujahr' ]->toHoliday( 2018, [] )->getDate()->format( 'Y-m-d' ) );
+                         $this->collection[ 'Neujahr' ]->toHoliday( 2018, 'Neujahr', [] )->getDate()->format( 'Y-m-d' ) );
 
    }
    public function testOffsetSet()
@@ -64,16 +64,16 @@ class DefinitionCollectionTest extends TestCase
       $this->collection[] = Definition::Create( 'Winterschalte' )->setStaticDate( 3, 14 );
 
       $this->assertSame( '2018-03-11',
-                         $this->collection[ 'Pflugfest' ]->toHoliday( 2018, [] )->getDate()->format( 'Y-m-d' ) );
+                         $this->collection[ 'Pflugfest' ]->toHoliday( 2018, 'Pflugfest', [] )->getDate()->format( 'Y-m-d' ) );
 
       $this->assertSame( '2018-03-14',
-                         $this->collection[ 'Winterschalte' ]->toHoliday( 2018, [] )->getDate()->format( 'Y-m-d' ) );
+                         $this->collection[ 'Winterschalte' ]->toHoliday( 2018, 'Winterschalte', [] )->getDate()->format( 'Y-m-d' ) );
 
    }
    public function testOffsetSetException()
    {
 
-      $this->expectException( Exception::class );
+      $this->expectException( \Exception::class );
       $this->collection[ 'xyz' ] = 12;
 
    }
@@ -240,9 +240,8 @@ class DefinitionCollectionTest extends TestCase
    public function testCreate()
    {
 
-      $this->assertInstanceOf( DefinitionCollection::class, DefinitionCollection::Create( 'Germany', 'de' ) );
+      $this->assertInstanceOf( DefinitionCollection::class, DefinitionCollection::Create( 'Germany', 'de', 'de' ) );
 
    }
-   #public function test() { $this->assertSame( '', '' ); }
 
 }

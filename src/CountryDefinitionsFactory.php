@@ -90,7 +90,7 @@ class CountryDefinitionsFactory
     }
 
     /**
-     * Gets the 2 char ISO ISO-3166-1 country IDs of the currently supported countries with known holidays
+     * Gets the 2 char ISO-3166-1 country IDs of the currently supported countries with known holidays
      *
      * @return array
      */

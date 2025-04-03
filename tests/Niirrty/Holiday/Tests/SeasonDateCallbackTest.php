@@ -25,7 +25,7 @@ class SeasonDateCallbackTest extends TestCase
 
       $this->expectException( ArgumentException::class );
 
-      new SeasonDateCallback( 'invalid type', SeasonDateCallback::HEMISPHERE_NORTH );
+      new SeasonDateCallback( 'invalid type',  SeasonDateCallback::HEMISPHERE_NORTH );
 
    }
    public function test_constructException2()

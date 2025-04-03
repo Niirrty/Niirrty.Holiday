@@ -6,6 +6,7 @@
         <cache>
           <versions>
             <info id="Local" version="7.1.5" />
+            <info id="LocalC:\Users\niirr\Documents\GitHub\Niirrty.Holiday\vendor\bin\phpunit" version="9.6.22" />
             <info id="LocalC:\Users\niirr\PhpstormProjects\Niirrty.Holiday\vendor\bin\phpunit" version="9.6.17" />
           </versions>
         </cache>

@@ -25,11 +25,13 @@ class GenericDateCallbackTest extends TestCase
       $cb = new GenericDateCallback(
          function ( int $year ) : \DateTime
          {
+
             if ( 0 === $year % 2 )
             {
                return new DateTime( $year . '-12-07' );
             }
             return new DateTime( $year . '-12-08' );
+
          }
       );
 

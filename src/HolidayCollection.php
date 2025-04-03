@@ -226,7 +226,7 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Get the names of all an registered global callbacks.
+     * Get the year of current defined holiday data.
      *
      * @return int
      */
@@ -398,12 +398,12 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
     public function extractRegionNames( array $regionIndexes = [] ): array
     {
 
-        $names = [];
-
         if ( \count( $regionIndexes ) < 1 || $regionIndexes[ 0 ] === -1 )
         {
             return $this->_regions;
         }
+
+        $names = [];
 
         foreach ( $regionIndexes as $regionIndex )
         {
@@ -524,7 +524,7 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ( $this->_data as $identifier => $holiday )
         {
-            if ( $holiday->getDate() < $minDate )
+            if ( \is_null( $holiday->getDate() ) || $holiday->getDate() < $minDate )
             {
                 continue;
             }
@@ -553,6 +553,10 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ( $this->_data as $identifier => $holiday )
         {
+            if ( \is_null( $holiday->getDate() ) )
+            {
+                continue;
+            }
             $regions = $holiday->getValidRegions();
             if ( [ -1 ] === $regions || [] === $regions || \in_array( $regionId, $regions, true ) )
             {
@@ -579,6 +583,10 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ( $this->_data as $identifier => $holiday )
         {
+            if (  \is_null( $holiday->getDate() ) )
+            {
+                continue;
+            }
             $regions = $holiday->getValidRegions();
             if ( [ -1 ] === $regions || [] === $regions )
             {
@@ -658,7 +666,7 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ( $this->_data as $identifier => $holiday )
         {
-            if ( !$holiday->getIsRestDay() )
+            if ( ! $holiday->getIsRestDay() || \is_null( $holiday->getDate() ) )
             {
                 continue;
             }
@@ -682,7 +690,7 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
 
         foreach ( $this->_data as $identifier => $holiday )
         {
-            if ( $holiday->getIsRestDay() )
+            if ( $holiday->getIsRestDay() || \is_null( $holiday->getDate() ) )
             {
                 continue;
             }
@@ -690,6 +698,21 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
         }
 
         return $result;
+
+    }
+
+    /**
+     * Sorts the current defined holidays, beginning at oldest dates.
+     *
+     * @return void
+     */
+    public function sort(): void
+    {
+
+        // Ensure, there are no invalid holiday definitions without a defined date. (they are removed from data)
+        $this->_data = \array_filter( $this->_data, fn( $holiday ) => ! \is_null( $holiday->getDate() ) );
+
+        \uasort( $this->_data, function ( $a, $b ) { return $a->getDate() <=> $b->getDate(); } );
 
     }
 
@@ -704,7 +727,7 @@ class HolidayCollection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Creates a new HolidayCollection instance and returns it.
      *
-     * @param int    $year        The year where the holidays are valid for
+     * @param int    $year        The year when the holidays are valid for
      * @param string $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
      * @param string $countryId   The 2 char ISO country ID (e.g.: 'de', 'fr')
      *

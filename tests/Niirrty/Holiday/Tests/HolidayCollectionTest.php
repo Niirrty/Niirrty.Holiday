@@ -28,14 +28,18 @@ class HolidayCollectionTest extends TestCase
    {
 
       $this->collection = new HolidayCollection( 2018, 'Ende der Welt', 'ew' );
+
       $this->collection->addRange(
+
          ( new Holiday( 'Tag 1' ) )->setValidRegions( [ 1 ] )
                                    ->setName( 'Tag 1 des neuen Jahres' )
                                    ->setDate( new DateTime( '2018-01-01' ) ),
+
          ( new Holiday( 'Befreiung' ) )
                        ->setName( 'Tag der Befreiung' )
                        ->setDate( new DateTime( '2018-06-24' ) )
                        ->setIsRestDay( false )
+
       )->setRegions(
          [ 1 => 'Foo', 2 => 'Bar', 3 => 'Baz' ]
       );

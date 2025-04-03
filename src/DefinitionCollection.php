@@ -20,7 +20,7 @@ use Countable;
 use IteratorAggregate;
 use Niirrty\Holiday\Callbacks\EasterDateCallback;
 use Niirrty\Holiday\Callbacks\IDynamicDateCallback;
-use Psr\Log\LoggerInterface;
+use Niirrty\IO\FileNotFoundException;
 use ReturnTypeWillChange;
 
 
@@ -32,7 +32,6 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
 
 
     // <editor-fold desc="= = =   P R I V A T E   F I E L D S   = = = = = = = = = = = = = = = = = = = = = = = = =">
-
 
     /**
      * The country name (e.g. 'Deutschland' or 'United Kingdom')
@@ -47,6 +46,13 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @type string
      */
     private string $_countryId;
+
+    /**
+     * The ISO 2 char language ID of the country-depending default language.
+     *
+     * @var string
+     */
+    private string $_languageId;
 
     /**
      * All holiday definition records.
@@ -74,8 +80,6 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      */
     private array $_regions;
 
-    private ?LoggerInterface $_logger;
-
     // </editor-fold>
 
 
@@ -86,14 +90,14 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param string               $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
      * @param string               $countryId   The country ISO 2 char ID (e.g.: 'de', 'fr')
-     * @param null|LoggerInterface $logger
+     * @param string               $languageId  The ISO 2 char language ID of the country-depending default language.
      */
-    public function __construct( string $countryName, string $countryId, ?LoggerInterface $logger = null )
+    public function __construct( string $countryName, string $countryId, string $languageId )
     {
 
         $this->_countryName = $countryName;
         $this->_countryId = $countryId;
-        $this->_logger = $logger;
+        $this->_languageId = $languageId;
         $this->_data = [];
         $this->_globalCallbacks = [ 'easter_sunday' => new EasterDateCallback() ];
         $this->_regions = [];
@@ -163,7 +167,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      * @param int        $offset The offset to assign the value to.
      * @param Definition $value  The value to set.
      *
-     * @throws Exception
+     * @throws \Exception
      * @link   http://php.net/manual/en/arrayaccess.offsetset.php
      */
     public function offsetSet( $offset, $value ) : void
@@ -171,7 +175,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
 
         if ( !( $value instanceof Definition ) )
         {
-            throw new Exception( 'Can not set an holiday definition if it is not an Definition instance!' );
+            throw new \Exception( 'Can not set an holiday definition if it is not an Definition instance!' );
         }
 
         if ( \is_null( $offset ) )
@@ -259,7 +263,19 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Get the names of all an registered global callbacks for getting a dynamic holiday date.
+     * Gets the country ISO 2 char ID (e.g. 'de' or 'fr')
+     *
+     * @return string
+     */
+    public function getLanguageId(): string
+    {
+
+        return $this->_languageId;
+
+    }
+
+    /**
+     * Get the names of all registered global callbacks for getting a dynamic holiday date.
      *
      * 'easter_sunday' is the only already known predefined callback.
      *
@@ -275,17 +291,41 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Gets all valid holidays for defined year and region(s).
      *
-     * @param int         $year           The year to get the holiday for
-     * @param string|null $languageId     The 2 char ISO language ID for holiday name language (usable default languages
-     *                                    are 'cz', 'de', 'en', 'es', 'fr', 'it', 'jp', 'pt'. If empty or unknown the
-     *                                    default name is used.
-     * @param array       $regionIndexes  The indexes of the required region
+     * @param int $year                The year to get the holiday for
+     * @param string|null $languageId  The 2 char ISO language ID for holiday name language.
+     *                                 Current known language IDs are 'de', 'en', 'fr', 'it', 'es', 'pt', 'cz', 'pl',
+     *                                 'nl', 'dk', 'no', 'sv', 'fi', 'is' and 'jp'. If empty, unknown or wrong format
+     *                                 the defined HolidayDefinition Collection language ID is used.
+     * @param array $regionIndexes     The indexes of the required region
+     * @param string|null $transFolder Optional full path to directory that contains all translation files,
+     *                                 if the default folder should not be used.
      *
      * @return HolidayCollection
      * @throws Exception
+     * @throws FileNotFoundException
+     * @throws \Throwable
      */
-    public function getHolidays( int $year, ?string $languageId = null, array $regionIndexes = [] ): HolidayCollection
+    public function getHolidays(
+        int $year, ?string $languageId = null, array $regionIndexes = [], ?string $transFolder = null ): HolidayCollection
     {
+
+        // Ensure, a valid language id is used
+        if ( ! static::isValidLanguageId( $languageId ) )
+        {
+            $languageId = $this->_languageId;
+            if ( ! static::isValidLanguageId( $languageId ) )
+            {
+                $languageId = 'en';
+            }
+        }
+
+        // The file path of the PHP file that returns all language name translations for selected language
+        $transFile = static::getTransFilePath( $languageId, $transFolder );
+
+        $translatedNames = [];
+        try { $translatedNames = @include $transFile; }
+        catch ( \Throwable $t ) { }
+
 
         $holidays = HolidayCollection::Create( $year, $this->_countryName, $this->_countryId )
                                      ->setRegions( $this->_regions );
@@ -293,7 +333,14 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
         foreach ( $this->_data as $holiday )
         {
 
-            $holiday = $holiday->toHoliday( $year, $this->_globalCallbacks, $regionIndexes, $languageId );
+            $transName = $translatedNames[ $holiday->getIdentifier() ] ?? $holiday->getIdentifier();
+
+            $holiday = $holiday->toHoliday(
+                $year,
+                $transName,
+                $this->_globalCallbacks,
+                $regionIndexes,
+                $languageId );
 
             if ( null === $holiday )
             {
@@ -368,7 +415,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Gets if an region with the defined index or name exists.
+     * Gets if a region with the defined index or name exists.
      *
      * @param int|string $region The name or index of the required region
      *
@@ -387,7 +434,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Gets the index of an region with the defined name, or FALSE if it not exists.
+     * Gets the index of a region with the defined name, or FALSE if it not exists.
      *
      * @param string $region The name of the required region
      *
@@ -413,8 +460,8 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Add an global callback function that is used to calculate an specific dynamic date for usage
-     * as base date for calculate an movable holiday.
+     * Add a global callback function that is used to calculate an specific dynamic date for usage
+     * as base date for calculate a movable holiday.
      *
      * 'easter_sunday' is the only already known predefined callback.
      *
@@ -436,9 +483,9 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Removes an registered global callback.
+     * Removes a registered global callback.
      *
-     * @param string $name THe name of the callback. Empty $name will remove all registered callbacks.
+     * @param string|null $name THe name of the callback. Empty $name will remove all registered callbacks.
      *
      * @return DefinitionCollection
      * @throws Exception If 'easter_sunday' should be deleted.
@@ -469,7 +516,7 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * Add an holiday Definition to the collection.
+     * Add a holiday Definition to the collection.
      *
      * @param Definition $definition
      *
@@ -479,6 +526,28 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
     {
 
         $this->_data[ $definition->getIdentifier() ] = $definition;
+
+        return $this;
+
+    }
+
+    /**
+     * Add one or more holiday Definitions, defines as array, to the collection.
+     *
+     * @param Definition[] $definitions
+     *
+     * @return DefinitionCollection
+     */
+    public function addRangeFromArray( array $definitions ): DefinitionCollection
+    {
+
+        foreach ( $definitions as $definition )
+        {
+            if ( $definition instanceof Definition )
+            {
+                $this->_data[ $definition->getIdentifier() ] = $definition;
+            }
+        }
 
         return $this;
 
@@ -516,16 +585,56 @@ class DefinitionCollection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param string $countryName The country name (e.g. 'Deutschland' or 'United Kingdom')
      * @param string $countryId   The 2 char ISO country ID (e.g.: 'de', 'fr')
+     * @param string $languageId
      *
      * @return DefinitionCollection
      */
-    public static function Create( string $countryName, string $countryId ): DefinitionCollection
+    public static function Create( string $countryName, string $countryId, string $languageId ): DefinitionCollection
     {
 
-        return new self( $countryName, $countryId );
+        return new self( $countryName, $countryId, $languageId );
 
     }
 
+    // </editor-fold>
+
+
+    // <editor-fold desc="= = =   P R I V A T E   S T A T I C   M E T H O D S   = = = = = = = = = = = = = = = = = =">
+
+    private static function isValidLanguageId( string|null $languageId ) : bool
+    {
+
+        return ! empty( $languageId ) &&
+               ! \preg_match( '~^[a-z]{2}$~', $languageId );
+
+    }
+
+    private static function getTransFilePath( string &$languageId, ?string $transFolder ) : string
+    {
+
+        // Get the directory that contains all usable holiday name translations.
+        if ( empty( $transFolder ) || ! \is_dir( $transFolder ) )
+        {
+            $transFolder = \dirname( __DIR__ ) . '/data/translations';
+        }
+        $transFolder = \rtrim( $transFolder, '/\\' );
+
+        // The file path of the PHP file that returns all language name translations for selected language
+        $transFile = $transFolder . '/' . \strtolower( $languageId ) . '.php';
+
+        if ( ! \file_exists( $transFile ) )
+        {
+            $transFile = \sprintf( "%s/data/translations/%s.php", \dirname( __DIR__ ), $languageId );
+        }
+        if ( ! \file_exists( $transFile ) )
+        {
+            $languageId = 'en';
+            $transFile = \sprintf( "%s/data/translations/%s.php", \dirname( __DIR__ ), $languageId );
+        }
+
+        return $transFile;
+
+    }
 
     // </editor-fold>
 

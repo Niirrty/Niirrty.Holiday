@@ -28,12 +28,14 @@ class HolidayTest extends TestCase
    {
 
       $this->holiday = new Holiday( 'Foo-Day' );
+
       $this->holiday->setName( 'My Foo Day' )
                     ->setDate( new \DateTime( '2018-05-01 00:00:00' ) )
                     ->setValidRegions( [ 12 ] )
                     ->setLanguage( 'en' )
                     ->setDescription( 'A holiday destription' )
                     ->setMovedFromDate( new \DateTime( '2018-05-02 00:00:00' ) );
+
       parent::setUp();
 
    }

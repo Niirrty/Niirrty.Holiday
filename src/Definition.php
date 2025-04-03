@@ -26,7 +26,6 @@ class Definition
 
     // <editor-fold desc="// –––––––   P R I V A T E   F I E L D S   ––––––––––––––––––––––––––––––––––––––">
 
-
     /**
      * @type array
      */
@@ -76,18 +75,11 @@ class Definition
     protected ?string $_baseCallbackName;
 
     /**
-     * The country home language holiday name. If there are more than 1 Languages simple select one
+     * The country-depending default ISO 2 char language ID for holidays.
      *
      * @type string
      */
-    protected string $_name;
-
-    /**
-     * Optional name translations. Keys are the 2 char country codes like 'de', 'fr', 'cz'
-     *
-     * @type array
-     */
-    protected array $_nameTranslations;
+    protected string $_defaultLanguageId;
 
     /**
      * An optional holiday description.
@@ -97,14 +89,14 @@ class Definition
     protected ?string $_description;
 
     /**
-     * The year where the holiday starts to be valid. NULL means no restriction.
+     * The year, where the holiday starts to be valid. NULL means no restriction.
      *
      * @type int|null
      */
     protected ?int $_validFromYear;
 
     /**
-     * The year where the holiday ends to be valid. NULL means no restriction.
+     * The year, where the holiday ends to be valid. NULL means no restriction.
      *
      * @type int|null
      */
@@ -137,7 +129,7 @@ class Definition
     protected $_validationCallback;
 
     /**
-     * The indexes of all country depending regions where the holiday is valid or [ -1 ] if valid for all regions or if
+     * The indexes of all country-depending regions where the holiday is valid or [ -1 ] if valid for all regions or if
      * there are no regions
      *
      * @type array
@@ -150,6 +142,15 @@ class Definition
      * @type bool
      */
     protected bool $_isRestDay;
+
+    /**
+     * An optional holiday extension.
+     *
+     * It can be used to extend the holiday validity for example for a different region that is valid since other year.
+     *
+     * @var Definition|null
+     */
+    protected ?Definition $_extension = null;
 
     // </editor-fold>
 
@@ -176,8 +177,7 @@ class Definition
         $this->_description = null;
         $this->_moveConditions = [];
         $this->_moveAllMatches = false;
-        $this->_name = $identifier;
-        $this->_nameTranslations = [];
+        $this->_defaultLanguageId = 'en';
         $this->_regions = [ -1 ];
         $this->_isRestDay = true;
 
@@ -253,50 +253,10 @@ class Definition
     }
 
     /**
-     * Gets the country home language holiday name.
+     * Gets the country home ISO 2 char language ID.
      *
      * @return string
      */
-    public function getName(): string
-    {
-
-        return $this->_name;
-
-    }
-
-    /**
-     * Gets the optional defined name translations. Keys are the 2 char country code like 'de', 'fr', 'cz'
-     *
-     * @return array
-     */
-    public function getNameTranslations(): array
-    {
-
-        return $this->_nameTranslations;
-
-    }
-
-    /**
-     * Gets the holiday name with defined language id.
-     *
-     * If the language ID is empty the default name is returned, if a translation with defined language id not exists
-     * the identifier is returned.
-     *
-     * @param string|null $languageId
-     *
-     * @return string
-     */
-    public function getNameTranslated( ?string $languageId = null ): string
-    {
-
-        if ( empty( $languageId ) || !isset( $this->_nameTranslations[ $languageId ] ) )
-        {
-            return $this->_name;
-        }
-
-        return $this->_nameTranslations[ $languageId ];
-
-    }
 
     /**
      * Get the name of the callback, used to calculate an specific base date that will be used to build
@@ -338,7 +298,7 @@ class Definition
     }
 
     /**
-     * Gets the year where the holiday validity starts. NULL means no restriction.
+     * Gets the year when the holiday validity starts. NULL means no restriction.
      *
      * @return int|null
      */
@@ -349,8 +309,8 @@ class Definition
     }
 
     /**
-     * Gets if the holiday have a known year where it becomes a invalid state, define it here. If this year is lower
-     * than ValidToYear it means the holiday becomes a invalid state before it is remarked as valid in a year after.
+     * Gets if the holiday have a known year when it becomes an invalid state, define it here. If this year is lower
+     * than ValidToYear it means the holiday becomes an invalid state before it is remarked as valid in a year after.
      *
      * @return int|null
      */
@@ -439,64 +399,29 @@ class Definition
 
     }
 
+    /**
+     * Gets an optional holiday extension.
+     *
+     * It can be used to extend the holiday validity for example for a different region that is valid since other year.
+     *
+     * @return Definition|null
+     */
+    public function getExtension(): ?Definition
+    {
+
+        return $this->_extension;
+
+    }
+
     // </editor-fold>
 
 
     // <editor-fold desc="// – – – –   S E T T E R   – – – – – – – – – – –">
 
     /**
-     * Sets the country home language holiday name.
-     *
-     * @param string $name
-     *
-     * @return Definition
-     */
-    public function setName( string $name ): Definition
-    {
-
-        $this->_name = $name;
-
-        return $this;
-
-    }
-
-    /**
-     * Sets the optional name translations. Keys are the 2 char country code like 'de', 'fr', 'cz'
-     *
-     * @param array $translations
-     *
-     * @return Definition
-     */
-    public function setNameTranslations( array $translations ): Definition
-    {
-
-        $this->_nameTranslations = $translations;
-
-        return $this;
-
-    }
-
-    /**
-     * Adds a optional name translation.
-     *
-     * @param string $languageId  e.g.: 'de', 'fr', 'cz'
-     * @param string $translation The translated holiday name
-     *
-     * @return Definition
-     */
-    public function addNameTranslation( string $languageId, string $translation ): Definition
-    {
-
-        $this->_nameTranslations[ $languageId ] = $translation;
-
-        return $this;
-
-    }
-
-    /**
      * Sets an optional holiday description.
      *
-     * @param string $description
+     * @param string|null $description
      *
      * @return Definition
      */
@@ -585,7 +510,7 @@ class Definition
     }
 
     /**
-     * Sets the year where the holiday validity starts. NULL means no restriction.
+     * Sets the year when the holiday validity starts. NULL means no restriction.
      *
      * @param int|null $year
      *
@@ -606,8 +531,8 @@ class Definition
     }
 
     /**
-     * Sets if the holiday have a known year where it becomes a invalid state, define it here. If this year is lower
-     * than ValidToYear it means the holiday becomes a invalid state before it is remarked as valid in a year after.
+     * Sets if the holiday have a known year when it becomes a invalid state, define it here. If this year is lower
+     * than ValidToYear it means the holiday becomes an invalid state before it is remarked as valid in a year after.
      *
      * @param int|null $year
      *
@@ -772,7 +697,7 @@ class Definition
     }
 
     /**
-     * Sets the indexes of all country depending regions where the holiday is valid or [ -1 ] if valid for all regions
+     * Sets the indexes of all country depending on regions where the holiday is valid or [ -1 ] if valid for all regions
      * or if there are no regions.
      *
      * @param array $regions
@@ -799,7 +724,7 @@ class Definition
     }
 
     /**
-     * Adds the index of a country depending region where the holiday is valid or [ -1 ] if valid for all regions.
+     * Adds the index of a country depending on region where the holiday is valid or [ -1 ] if valid for all regions.
      *
      * @param int $regionIndex
      *
@@ -840,7 +765,7 @@ class Definition
     }
 
     /**
-     * Adds a range of indexes of a country depending regions where the holiday is valid.
+     * Adds a range of indexes of a country depending on regions where the holiday is valid.
      *
      * @param int $regionStartIndex
      * @param int $regionEndIndex
@@ -862,7 +787,7 @@ class Definition
     }
 
     /**
-     * Adds the defined indexes of country depending regions where the holiday is valid.
+     * Adds the defined indexes of country depending on regions where the holiday is valid.
      *
      * @param int ...$regions
      *
@@ -881,7 +806,7 @@ class Definition
     }
 
     /**
-     * Adds the defined indexes of country depending regions where the holiday is valid.
+     * Adds the defined indexes of country depending on regions where the holiday is valid.
      *
      * @param array $regions
      *
@@ -915,6 +840,23 @@ class Definition
 
     }
 
+    /**
+     * Sets an optional holiday extension.
+     *
+     * It can be used to extend the holiday validity for example for a different region that is valid since other year.
+     *
+     * @param Definition|null $extension
+     * @return Definition
+     */
+    public function setExtension( ?Definition $extension ): Definition
+    {
+
+        $this->_extension = $extension;
+
+        return $this;
+
+    }
+
     // </editor-fold>
 
 
@@ -939,29 +881,37 @@ class Definition
 
     }
 
+    public function hasExtension() : bool
+    {
+
+        return null !== $this->_extension;
+
+    }
+
     /**
      * Gets the current static, or dynamic calculated holiday date for defined year.
      *
-     * @param int         $year            The year to calculate the holiday date for.
-     * @param array       $globalCallbacks Array with global callback functions, required to calculate an dynamic base
-     *                                     date The are used if a base callback name is defined. The name must point to
-     *                                     the callback, registered by use the callback name as associated array key.
-     * @param array       $regions         If defined, the holiday is only returned if it is valid for a region with a
-     *                                     defined index.
-     * @param string|null $languageId      The 2 char ISO language ID for holiday name language (usable default
-     *                                     languages are 'cz', 'de', 'en', 'es', 'fr', 'it', 'jp', 'pt'. If empty or
-     *                                     unknown the default name is used.
+     * @param int   $year             The year to calculate the holiday date for.
+     * @param string $transName       The translated holiday name, depends on parameter {@see $languageId}
+     * @param array $globalCallbacks  Array with global callback functions, required to calculate a dynamic base
+     *                                date. They are used if a base callback name is defined. The name must point to
+     *                                the callback, registered by use the callback name as associated array key.
+     * @param array $regions          If defined, the holiday is only returned if it is valid for a region with a
+     *                                defined index.
+     * @param string $languageId      The 2 char ISO language ID for holiday name language (known language ID are 'de',
+     *                                'en', 'fr', 'it', 'es', 'pt', 'cz', 'pl', 'nl', 'dk', 'no', 'sv', 'fi', 'is', 'jp')
      *
      * @return Holiday|null
+     * @throws \Throwable
      */
     public function toHoliday(
-        int $year, array $globalCallbacks, array $regions = [], ?string $languageId = null ): ?Holiday
+        int $year, string $transName, array $globalCallbacks, array $regions = [], string $languageId = 'en' ): ?Holiday
     {
 
         // Get from cache if defined
-        if ( isset( $this->_calculatedHolidays[ $year ] ) )
+        if ( isset( $this->_calculatedHolidays[ $year ][ $languageId ] ) )
         {
-            return $this->_calculatedHolidays[ $year ];
+            return $this->_calculatedHolidays[ $year ][ $languageId ];
         }
 
 
@@ -972,18 +922,22 @@ class Definition
             $isValid = false;
             foreach ( $regions as $region )
             {
-                if ( !$this->isValidRegion( $region ) )
+                if ( ! $this->isValidRegion( $region ) )
                 {
                     continue;
                 }
                 $isValid = true;
                 break;
             }
-            if ( !$isValid )
+            if ( ! $isValid )
             {
-                $this->_calculatedHolidays[ $year ] = null;
-
-                return $this->_calculatedHolidays[ $year ];
+                $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+                if ( $this->hasExtension() )
+                {
+                    $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                        $year, $transName, $globalCallbacks, $regions, $languageId );
+                }
+                return $this->_calculatedHolidays[ $year ][ $languageId ];
             }
         }
 
@@ -1010,7 +964,7 @@ class Definition
         }
 
         // If a dynamic base callback name is defined => use it to generate the required DateTime
-        else if ( !empty( $this->_baseCallbackName ) &&
+        else if ( ! empty( $this->_baseCallbackName ) &&
                   isset( $globalCallbacks[ $this->_baseCallbackName ] ) &&
                   ( $globalCallbacks[ $this->_baseCallbackName ] instanceof IDynamicDateCallback ) )
         {
@@ -1023,9 +977,13 @@ class Definition
         // Bad config
         else
         {
-            $this->_calculatedHolidays[ $year ] = null;
-
-            return null;
+            $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+            if ( $this->hasExtension() )
+            {
+                $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                    $year, $transName, $globalCallbacks, $regions, $languageId );
+            }
+            return $this->_calculatedHolidays[ $year ][ $languageId ];
         }
 
 
@@ -1050,9 +1008,13 @@ class Definition
                         // from=2002 to=2000 …-2000 + 2002-…
                         if ( $year > $validToYear && $year < $validFromYear )
                         {
-                            $this->_calculatedHolidays[ $year ] = null;
-
-                            return null;
+                            $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+                            if ( $this->hasExtension() )
+                            {
+                                $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                                    $year, $transName, $globalCallbacks, $regions, $languageId );
+                            }
+                            return $this->_calculatedHolidays[ $year ][ $languageId ];
                         }
                     }
                     else
@@ -1060,9 +1022,13 @@ class Definition
                         // from=1999 to=2000 1999-2000
                         if ( $year < $validFromYear || $year > $validToYear )
                         {
-                            $this->_calculatedHolidays[ $year ] = null;
-
-                            return null;
+                            $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+                            if ( null !== $this->_extension )
+                            {
+                                $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                                    $year, $transName, $globalCallbacks, $regions, $languageId );
+                            }
+                            return $this->_calculatedHolidays[ $year ][ $languageId ];
                         }
                     }
                 }
@@ -1070,9 +1036,13 @@ class Definition
                 {
                     if ( $year < $validFromYear )
                     {
-                        $this->_calculatedHolidays[ $year ] = null;
-
-                        return null;
+                        $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+                        if ( $this->hasExtension() )
+                        {
+                            $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                                $year, $transName, $globalCallbacks, $regions, $languageId );
+                        }
+                        return $this->_calculatedHolidays[ $year ][ $languageId ];
                     }
                 }
             }
@@ -1080,30 +1050,38 @@ class Definition
             {
                 if ( $year > $validToYear )
                 {
-                    $this->_calculatedHolidays[ $year ] = null;
-
-                    return null;
+                    $this->_calculatedHolidays[ $year ][ $languageId ] = null;
+                    if ( $this->hasExtension() )
+                    {
+                        $this->_calculatedHolidays[ $year ][ $languageId ] = $this->_extension->toHoliday(
+                            $year, $transName, $globalCallbacks, $regions, $languageId );
+                    }
+                    return $this->_calculatedHolidays[ $year ][ $languageId ];
                 }
             }
 
         }
 
+        if ( ! isset( $this->_calculatedHolidays[ $year ] ) )
+        {
+            $this->_calculatedHolidays[ $year ] = [];
+        }
 
-        $this->_calculatedHolidays[ $year ] = ( new Holiday( $this->_identifier ) )
+        $this->_calculatedHolidays[ $year ][ $languageId ] = ( new Holiday( $this->_identifier ) )
             ->setDescription( $this->_description )
             ->setDate( $movedDate )
-            ->setName( $this->getNameTranslated( $languageId ) )
+            ->setName( $transName )
             ->setLanguage( $languageId )
             ->setValidRegions( $this->_regions )
             ->setIsRestDay( $this->_isRestDay );
 
         if ( $baseDate != $movedDate )
         {
-            $this->_calculatedHolidays[ $year ]->setMovedFromDate( $baseDate );
+            $this->_calculatedHolidays[ $year ][ $languageId ]->setMovedFromDate( $baseDate );
         }
 
 
-        return $this->_calculatedHolidays[ $year ];
+        return $this->_calculatedHolidays[ $year ][ $languageId ];
 
     }
 
@@ -1141,6 +1119,12 @@ class Definition
 
     // <editor-fold desc="// –––––––   P U B L I C   S T A T I C   M E T H O D S   ––––––––––––––––––––––––">
 
+    /**
+     * Creates a regular Holiday definition.
+     *
+     * @param string $identifier The unique holiday identifier. (unique for the country))
+     * @return Definition
+     */
     public static function Create( string $identifier ): Definition
     {
 
@@ -1148,6 +1132,13 @@ class Definition
 
     }
 
+    /**
+     * Creates a holiday that depends on easter-sunday.
+     *
+     * @param string $identifier The unique holiday identifier. (unique for the country))
+     * @param int    $moveDays   Positive or negative difference days to easter-sunday
+     * @return Definition
+     */
     public static function CreateEasterDepending( string $identifier, int $moveDays ): Definition
     {
 
@@ -1162,15 +1153,13 @@ class Definition
 
     }
 
-    public static function CreateNewYear( $localName ): Definition
+    public static function CreateNewYear(): Definition
     {
 
-        return Definition::Create( Identifiers::NEW_YEAR )
-                         ->setStaticDate( 1, 1 )
-                         ->setName( $localName );
+        return Definition::Create( 'New Year' )
+                         ->setStaticDate( 1, 1 );
 
     }
-
 
     // </editor-fold>
 

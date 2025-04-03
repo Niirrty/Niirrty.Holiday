@@ -34,10 +34,7 @@ class DefinitionTest extends TestCase
    {
 
       $this->definitionStatic = new Definition( 'My special holiday' );
-      $this->definitionStatic->setName( 'Mein spezieller Feiertag' )
-                             ->setNameTranslations( [ 'de' => 'Mein spezieller Feiertag',
-                                                      'en' => 'My special holiday' ] )
-                             ->setDescription( 'Dieser Feiertag gilt nur für mich!' )
+      $this->definitionStatic->setDescription( 'Dieser Feiertag gilt nur für mich!' )
                              ->setStaticDate( 6, 24 )
                              ->setValidFromYear( 2016 )
                              ->setValidToYear( 2045 )
@@ -46,8 +43,7 @@ class DefinitionTest extends TestCase
                                 MoveCondition::OnSunday( 1 ) )
                              ->setValidRegions( [ 12 ] );
       $this->definitionDynamic = new Definition( 'A dynamic holiday' );
-      $this->definitionDynamic->setName( 'Ein dynamischer Feiertag' )
-                              ->setDynamicDateCallback(
+      $this->definitionDynamic->setDynamicDateCallback(
                                  new class implements IDynamicDateCallback
                                  {
                                     public function calculate( int $year ) : \DateTime
@@ -98,30 +94,6 @@ class DefinitionTest extends TestCase
 
       $this->assertFalse( $this->definitionStatic->hasDynamicDateCallback() );
       $this->assertTrue( $this->definitionDynamic->hasDynamicDateCallback() );
-
-   }
-   public function testGetName()
-   {
-
-      $this->assertSame( 'Mein spezieller Feiertag', $this->definitionStatic->getName() );
-      $this->assertSame( 'Ein dynamischer Feiertag', $this->definitionDynamic->getName() );
-
-   }
-   public function testGetNameTranslations()
-   {
-
-      $this->assertSame( [ 'de' => 'Mein spezieller Feiertag',
-                           'en' => 'My special holiday' ], $this->definitionStatic->getNameTranslations() );
-      $this->assertSame( [], $this->definitionDynamic->getNameTranslations() );
-
-   }
-   public function testGetNameTranslated()
-   {
-
-      $this->assertSame( 'Mein spezieller Feiertag', $this->definitionStatic->getNameTranslated( 'de' ) );
-      $this->assertSame( 'Mein spezieller Feiertag', $this->definitionStatic->getNameTranslated() );
-      $this->assertSame( 'My special holiday', $this->definitionStatic->getNameTranslated( 'en' ) );
-      $this->assertSame( 'Mein spezieller Feiertag', $this->definitionStatic->getNameTranslated( 'it' ) );
 
    }
    public function testGetBaseCallbackName()
@@ -195,36 +167,9 @@ class DefinitionTest extends TestCase
       $this->assertSame( true, $this->definitionStatic->getIsRestDay() );
 
    }
-
-   public function testSetName()
-   {
-
-      $this->assertSame( 'Foo', $this->definitionStatic->setName( 'Foo' )->getName() );
-
-   }
-   public function testSetNameTranslations()
-   {
-
-      $this->assertSame( [], $this->definitionStatic->setNameTranslations( [] )->getNameTranslations() );
-
-   }
-   public function testAddNameTranslation()
-   {
-
-      $this->assertSame( [ 'xy' => 'Blub' ], $this->definitionDynamic->addNameTranslation( 'xy', 'Blub' )->getNameTranslations() );
-
-   }
-   public function testSetDescription()
-   {
-
-      $this->definitionDynamic->toHoliday( 2016, [] );
-      $this->assertSame( 'Description…', $this->definitionDynamic->setDescription( 'Description…' )->getDescription() );
-
-   }
    public function testSetStaticDate()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->definitionStatic->setStaticDate( 2, 5 );
       $this->assertSame( 2, $this->definitionStatic->getMonth() );
       $this->assertSame( 5, $this->definitionStatic->getDay() );
@@ -233,7 +178,6 @@ class DefinitionTest extends TestCase
    public function testSetBaseCallbackName()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertNull( $this->definitionDynamic->setBaseCallbackName()->getBaseCallbackName() );
       $this->assertSame( 'Abc', $this->definitionDynamic->setBaseCallbackName( 'Abc' )->getBaseCallbackName() );
       $this->assertNull( $this->definitionDynamic->setBaseCallbackName( '' )->getBaseCallbackName() );
@@ -242,7 +186,6 @@ class DefinitionTest extends TestCase
    public function testSetDynamicDateCallback()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertInstanceOf(
          IDynamicDateCallback::class,
          $this->definitionDynamic->setDynamicDateCallback( new MyDynamicDateCallbackCallback() )->getDynamicDateCallback()
@@ -260,7 +203,6 @@ class DefinitionTest extends TestCase
    public function testSetValidToYear()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( 1993, $this->definitionStatic->setValidToYear( 1993 )->getValidToYear() );
       $this->assertSame( null, $this->definitionStatic->setValidToYear()->getValidToYear() );
 
@@ -268,35 +210,30 @@ class DefinitionTest extends TestCase
    public function testSetMoveConditions()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( [], $this->definitionStatic->setMoveConditions()->getMoveConditions() );
 
    }
    public function testClearMoveConditions()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( [], $this->definitionStatic->clearMoveConditions()->getMoveConditions() );
 
    }
    public function testAddMoveCondition()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( 3, \count( $this->definitionStatic->addMoveCondition( MoveCondition::OnMonday( 2 ) )->getMoveConditions() ) );
 
    }
    public function testAddMoveConditions()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( 3, \count( $this->definitionStatic->addMoveConditions( MoveCondition::OnMonday( 2 ) )->getMoveConditions() ) );
 
    }
    public function testSetMoveAllMatches()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertTrue( $this->definitionDynamic->setMoveAllMatches( true )->getMoveAllMatches() );
       $this->assertFalse( $this->definitionDynamic->setMoveAllMatches()->getMoveAllMatches() );
 
@@ -304,7 +241,6 @@ class DefinitionTest extends TestCase
    public function testSetValidationCallback()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $callback = function( \DateTime $date ) : bool
       {
          return $date > new DateTime( '2016-06-23 23:59:59' );
@@ -316,7 +252,6 @@ class DefinitionTest extends TestCase
    public function testSetValidRegions()
    {
 
-      $this->definitionStatic->toHoliday( 2016, [] );
       $this->assertSame( [ -1 ], $this->definitionStatic->setValidRegions( [] )->getValidRegions() );
       $this->assertSame( [ -1 ], $this->definitionStatic->setValidRegions( [ -1, 2 ] )->getValidRegions() );
 
@@ -324,7 +259,6 @@ class DefinitionTest extends TestCase
    public function testAddValidRegion()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertSame( [ 29 ], $this->definitionDynamic->addValidRegion( 29 )->getValidRegions() );
       $this->assertSame( [ -1 ], $this->definitionDynamic->addValidRegion( -1 )->getValidRegions() );
 
@@ -332,21 +266,18 @@ class DefinitionTest extends TestCase
    public function testAddValidRegionsRange()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertSame( [ 2, 3, 4 ], $this->definitionDynamic->addValidRegionsRange( 2, 4 )->getValidRegions() );
 
    }
    public function testAddValidRegions()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertSame( [ 2, 4, 6 ], $this->definitionDynamic->addValidRegions( 2, 4, 6 )->getValidRegions() );
 
    }
    public function testAddValidRegionsArray()
    {
 
-      $this->definitionDynamic->toHoliday( 2016, [] );
       $this->assertSame( [ 2, 4, 6 ], $this->definitionDynamic->addValidRegionsArray( [ 2, 4, 6 ] )->getValidRegions() );
 
    }
@@ -371,16 +302,16 @@ class DefinitionTest extends TestCase
    public function testToHoliday()
    {
 
-      $this->assertNull( $this->definitionStatic->toHoliday( 2015, [], [ 4, 12 ], 'de' ) );
-      $this->assertNull( $this->definitionStatic->toHoliday( 2016, [], [ 9 ], 'de' ) );
-      $this->assertInstanceOf( Holiday::class, $this->definitionStatic->toHoliday( 2016, [], [ 12 ], 'de' ) );
-      $this->assertInstanceOf( Holiday::class, $this->definitionDynamic->toHoliday( 2016, [], [], 'de' ) );
-      $this->assertNull( Definition::Create( 'abc' )->toHoliday( 2016, [], [ 9 ], 'de' ) );
+      $this->assertNull( $this->definitionStatic->toHoliday( 2015, 'Abc', [], [ 4, 12 ], 'de' ) );
+      $this->assertNull( $this->definitionStatic->toHoliday( 2016, 'Abc', [], [ 9 ], 'de' ) );
+      $this->assertInstanceOf( Holiday::class, $this->definitionStatic->toHoliday( 2016, 'Abc', [], [ 12 ], 'de' ) );
+      $this->assertInstanceOf( Holiday::class, $this->definitionDynamic->toHoliday( 2016, 'Abc', [], [], 'de' ) );
+      $this->assertNull( Definition::Create( 'abc' )->toHoliday( 2016, 'Abc', [], [ 9 ], 'de' ) );
       $this->definitionStatic->setValidFromYear( 2017 )->setValidToYear( 2009 );
-      $this->assertNull( $this->definitionStatic->toHoliday( 2016, [], [], 'de' ) );
-      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2018, [], [], 'de' ) );
-      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, [], [], 'de' ) );
-      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, [], [], 'de' ) );
+      $this->assertNull( $this->definitionStatic->toHoliday( 2016, 'Abc', [], [], 'de' ) );
+      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2018, 'Abc', [], [], 'de' ) );
+      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, 'Abc', [], [], 'de' ) );
+      $this->assertInstanceOf(  Holiday::class, $this->definitionStatic->toHoliday( 2008, 'Abc', [], [], 'de' ) );
 
    }
 
@@ -396,7 +327,7 @@ class DefinitionTest extends TestCase
       $globalCallbacks = [ 'easter_sunday' => new EasterDateCallback() ];
       $this->assertSame( '2018-04-16',
                          Definition::CreateEasterDepending( 'Bar', 15 )
-                                   ->toHoliday( 2018, $globalCallbacks, [], 'de' )
+                                   ->toHoliday( 2018, 'Abc', $globalCallbacks, [], 'de' )
                                    ->getDate()
                                    ->format( 'Y-m-d' ) );
 
@@ -406,7 +337,7 @@ class DefinitionTest extends TestCase
 
       $this->assertSame( '2018-01-01',
                          Definition::CreateNewYear( 'Neujahr' )
-                                   ->toHoliday( 2018, [], [], 'de' )
+                                   ->toHoliday( 2018, 'Abc', [], [], 'de' )
                                    ->getDate()
                                    ->format( 'Y-m-d' ) );
 
